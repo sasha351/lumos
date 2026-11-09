@@ -83,7 +83,10 @@ class GeneratorTests(unittest.TestCase):
 
     def test_every_exposed_command_is_verified_and_logged(self):
         log = (REPO / "docs" / "hardware-test-log.md").read_text(encoding="utf-8")
-        rows = [line for line in log.splitlines() if line.startswith("| H5")]
+        # A command counts as verified once the log has a passing H4 row (the
+        # original remote sends this code and the lamp effect was observed) or a
+        # passing H5 row (transmitted from Home Assistant).
+        rows = [line for line in log.splitlines() if line.startswith(("| H4", "| H5"))]
         for cmd in load_manifest()["commands"]:
             if not cmd["expose"]:
                 continue
@@ -91,7 +94,7 @@ class GeneratorTests(unittest.TestCase):
                 self.assertIs(cmd["verified"], True)
                 self.assertTrue(
                     any(cmd["pattern"] in row and "pass" in row for row in rows),
-                    f"no H5 row with 'pass' mentions {cmd['pattern']}",
+                    f"no H4/H5 row with 'pass' mentions {cmd['pattern']}",
                 )
 
     def test_non_dominant_pattern_is_refused(self):
