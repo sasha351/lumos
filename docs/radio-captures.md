@@ -21,7 +21,29 @@ The observations below are preserved from prior analysis, not a new decoding run
 | SubGHz_2026-10-23_14,52,52.sub | Same bytes as Lei.sub | Duplicate retained |
 | SubGHz_2026-10-23_14,48,37.sub | Same bytes as Pwr.sub | Duplicate retained |
 
-Power (`7B50020C`) is confirmed on hardware: transmitted from Home Assistant, it toggles the lamp (H5 in the [hardware test log](hardware-test-log.md)). The other button meanings are inferred from filenames and require confirmation before final UI labels. Mixed recordings must not be replayed wholesale. Keep the unknown command unexposed. Power may toggle rather than set a discrete state, and brightness commands do not establish absolute brightness or provide lamp-state feedback.
+Power (`7B50020C`) is confirmed on hardware: transmitted from Home Assistant, it toggles the lamp (H5 in the [hardware test log](hardware-test-log.md)).
+
+## Remote buttons
+
+The remote has 13 buttons. The project uses the user's names for them, in the order they sit on the remote. `position` in `captures/commands.json` records that order.
+
+| # | Button (`id`) | Capture | Code | Status |
+| --- | --- | --- | --- | --- |
+| 1 | Night mode (`night_mode`) | Nght.sub | `7B50010F` | inferred from the capture's name |
+| 2 | Power (`power`) | Pwr.sub | `7B50020C` | **verified** (H4 and H5) |
+| 3 | Color cooler (`color_cooler`) | Cool.sub | `7B500608` | inferred from the capture's name |
+| 4 | Brightness up (`brightness_up`) | Bup.sub | `7B50030D` | received in H4; lamp effect not yet recorded |
+| 5 | Color warmer (`color_warmer`) | none | unknown | not captured |
+| 6 | Brightness down (`brightness_down`) | Bdwn.sub | `7B500709` | inferred from the capture's name |
+| 7 | Center sun (`center_sun`) | Middl.sub | `7B50050B` | inferred ("middle") |
+| 8 | Coffee cup (`coffee_cup`) | none | unknown | not captured |
+| 9 | Baby bottle (`baby_bottle`) | none | unknown | not captured |
+| 10 | Laptop (`laptop`) | none | unknown | not captured |
+| 11 | Book (`book`) | Read.sub | `7B500907` | inferred ("read") |
+| 12 | Gaming (`gaming`) | none | unknown | not captured |
+| 13 | Tachometer (`tachometer`) | none | unknown | not captured |
+
+Two captures are not tied to a button yet. These are `leisure_capture` (Lei.sub, `7B500806`) and `unknown_0b` (`7B500B05`). The guided H4 session (`scripts/record_presses.py`) checks each pairing above and learns the codes of the uncaptured buttons. A button with no code can't be exposed. A button that has a code but no Flipper capture also needs a timing source before the generator can build it. Mixed recordings must not be replayed wholesale. Keep the unknown command unexposed. Power may toggle rather than set a discrete state, and brightness commands do not establish absolute brightness or provide lamp-state feedback.
 
 ## Reproduce
 

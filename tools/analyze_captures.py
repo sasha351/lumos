@@ -162,12 +162,28 @@ def build_raw_code(value: int, timings: dict[str, int]) -> list[int]:
     return code
 
 
-def _validate_command(cmd: dict, reports: dict[str, dict]) -> int:
-    """Check one manifest entry and return its pattern as an int."""
+def _validate_command(cmd: dict, reports: dict[str, dict]) -> int | None:
+    """Check one manifest entry and return its pattern as an int.
+
+    An entry is either a physical remote button (``position`` 1..n, in the
+    order of the buttons on the remote) or a capture whose button is not yet
+    identified (``position`` null). A button whose code has not been captured
+    yet has ``source`` and ``pattern`` null; it returns None and can never be
+    exposed.
+    """
     cid = cmd.get("id", "<missing id>")
     for key in ("id", "source", "pattern", "label", "icon", "expose", "verified"):
         if key not in cmd:
             raise GeneratorError(f"{cid}: manifest entry is missing {key!r}")
+    position = cmd.get("position")
+    if position is not None and (not isinstance(position, int) or isinstance(position, bool) or position < 1):
+        raise GeneratorError(f"{cid}: position must be a positive integer or null")
+    if cmd["pattern"] is None:
+        if cmd["source"] is not None:
+            raise GeneratorError(f"{cid}: source {cmd['source']} given without a pattern")
+        if cmd["expose"]:
+            raise GeneratorError(f"{cid}: has no captured code yet, so it cannot be exposed")
+        return None
     try:
         value = int(cmd["pattern"], 16)
     except ValueError:
@@ -208,12 +224,23 @@ def render_esphome(manifest: dict, reports: list[dict] | dict[str, dict]) -> str
         raise GeneratorError("manifest must contain a 'commands' list")
 
     seen: set[str] = set()
+    positions: set[int] = set()
+    patterns: dict[str, str] = {}
     buttons: list[str] = []
     for cmd in commands:
         value = _validate_command(cmd, reports)
         if cmd["id"] in seen:
             raise GeneratorError(f"{cmd['id']}: duplicate id in manifest")
         seen.add(cmd["id"])
+        position = cmd.get("position")
+        if position is not None:
+            if position in positions:
+                raise GeneratorError(f"{cmd['id']}: duplicate position {position}")
+            positions.add(position)
+        if value is not None:
+            if cmd["pattern"] in patterns:
+                raise GeneratorError(f"{cmd['id']}: pattern {cmd['pattern']} already belongs to {patterns[cmd['pattern']]}")
+            patterns[cmd["pattern"]] = cmd["id"]
         if not cmd["expose"]:
             continue
 

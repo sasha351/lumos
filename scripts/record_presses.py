@@ -7,11 +7,15 @@ prints a pass/fail table. It only listens; the board does not transmit.
 
 Run it from the repository root, with the board powered and on Wi-Fi:
 
-    python3 scripts/record_presses.py --order power,bright_up,bright_down
-    python3 scripts/record_presses.py        # asks for each button's name
+    python3 scripts/record_presses.py                    # every button, top to bottom
+    python3 scripts/record_presses.py --order "Color warmer,Laptop,Gaming"
+    python3 scripts/record_presses.py --ask              # type each name as you go
 
-Button names can be manifest ids (bright_up) or labels ("Brightness up").
-A name that matches nothing is still recorded, for example "unlabelled 1".
+With no options it walks all 13 remote buttons in the order they sit on the
+remote: Night mode, Power, Color cooler, Brightness up, Color warmer,
+Brightness down, Center sun, Coffee cup, Baby bottle, Laptop, Book, Gaming,
+Tachometer. Names are matched ignoring case and spaces. A name that matches
+nothing is still recorded, for example "mystery 1".
 
 Re-print the table for a saved session at any time:
 
@@ -36,11 +40,12 @@ sys.path.insert(0, str(REPO))
 
 from tools.press_log import (  # noqa: E402  (needs the repo on sys.path)
     Session,
-    find_command,
     evaluate,
+    find_command,
     format_report,
     load_manifest,
     parse_log,
+    remote_buttons,
 )
 
 CONNECT_MARKERS = ("Successfully connected", "Successful handshake", "remote.raw")
@@ -49,7 +54,8 @@ CONNECT_TIMEOUT_S = 45
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Guided H4 receive test.")
-    parser.add_argument("--order", help="comma-separated buttons to press, in order")
+    parser.add_argument("--order", help="comma-separated buttons to press, in order (default: the whole remote)")
+    parser.add_argument("--ask", action="store_true", help="type each button name as you go instead")
     parser.add_argument("--device", default="192.168.29.140", help="board address (default: %(default)s)")
     parser.add_argument("--config", default="esphome/lamp-controller.yaml")
     parser.add_argument("--out", type=Path, help="session file (default: captures/sessions/h4-<time>.log)")
@@ -57,7 +63,12 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     manifest = load_manifest()
-    order = [name.strip() for name in args.order.split(",") if name.strip()] if args.order else None
+    if args.ask:
+        order = None
+    elif args.order:
+        order = [name.strip() for name in args.order.split(",") if name.strip()]
+    else:
+        order = [cmd["label"] for cmd in remote_buttons(manifest)]
     if order:
         unknown = [name for name in order if find_command(name, manifest) is None]
         if unknown:

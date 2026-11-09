@@ -15,7 +15,7 @@ Input can be either of two formats:
 Run it on a file with::
 
     python3 -m tools.press_log captures/sessions/h4-YYYYMMDD-HHMMSS.log
-    python3 -m tools.press_log plain.log --order power,bright_up,cool
+    python3 -m tools.press_log plain.log --order "Night mode,Power,Color cooler"
 
 The script only reads logs. It never talks to the board and never transmits.
 """
@@ -235,8 +235,17 @@ def load_manifest(path: Path = DEFAULT_MANIFEST) -> list[dict]:
     return json.loads(Path(path).read_text(encoding="utf-8"))["commands"]
 
 
+def remote_buttons(manifest: list[dict]) -> list[dict]:
+    """The physical remote buttons, in the order they sit on the remote."""
+    return sorted((c for c in manifest if c.get("position")), key=lambda c: c["position"])
+
+
 def find_command(name: str | None, manifest: list[dict]) -> dict | None:
-    """Match a typed step name to a manifest entry by id or label."""
+    """Match a typed step name to a manifest entry by id or label.
+
+    Case, spaces and punctuation are ignored, so "Night mode", "night_mode"
+    and "NIGHT MODE" all find the same button.
+    """
     if not name:
         return None
     wanted = re.sub(r"[^a-z0-9]", "", name.lower())
@@ -278,15 +287,23 @@ def evaluate(steps: list[Step], manifest: list[dict], order: list[str] | None = 
             clean.append(Frame(index=len(clean), pulses=values[:FRAME_LENGTH], gap=None, value=value, reject_reason=None))
 
         dominant, dominant_count = counts.most_common(1)[0] if counts else (None, 0)
-        got = by_pattern.get(dominant, {}).get("id") if dominant else None
+        owner = by_pattern.get(dominant) if dominant else None
         if dominant is None:
             verdict = "NONE: no lamp frame received"
-        elif expected_cmd is None:
-            verdict = f"GOT {got}" if got else f"NEW CODE {dominant}"
-        elif dominant != expected_cmd["pattern"]:
-            verdict = f"WRONG: got {got or 'new code ' + dominant}"
         elif dominant_count < MIN_PASS_FRAMES:
-            verdict = f"WEAK: only {dominant_count} frame"
+            verdict = f"WEAK: only {dominant_count} frame of {dominant}"
+        elif expected_cmd is None:
+            verdict = f"GOT {owner['label']}" if owner else f"NEW CODE {dominant}"
+        elif expected_cmd["pattern"] is None:
+            # The button's code was never captured: this press teaches it.
+            if owner is None:
+                verdict = f"LEARNED {dominant}"
+            elif owner.get("position") is None:
+                verdict = f"LEARNED {dominant} (same as {owner['id']})"
+            else:
+                verdict = f"CONFLICT: {dominant} is listed as {owner['label']}"
+        elif dominant != expected_cmd["pattern"]:
+            verdict = f"WRONG: got {owner['label'] if owner else 'new code ' + dominant}"
         else:
             verdict = "PASS"
         if len(counts) > 1:
@@ -321,8 +338,12 @@ def format_report(results: list[StepResult]) -> str:
         timing = " ".join(str(t.get(k, "-")) for k in ("short_high", "long_high", "short_low", "long_low", "sync_high")) if t else "-"
         lines.append(f"| {r.number} | {r.name} | {r.verdict} | {frames} | {r.rejected} | {timing} | {r.effect or '-'} |")
     passed = sum(r.verdict.startswith("PASS") for r in results)
+    learned = sum(r.verdict.startswith("LEARNED") for r in results)
     lines.append("")
-    lines.append(f"{passed} of {len(results)} steps passed.")
+    summary = f"{passed} of {len(results)} steps passed"
+    if learned:
+        summary += f", {learned} learned a new button code"
+    lines.append(summary + ".")
     return "\n".join(lines)
 
 

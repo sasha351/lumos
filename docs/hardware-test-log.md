@@ -11,7 +11,7 @@ H1 and H2 were run by the user on November 9, 2026, on macOS with `esptool v5.6.
 | H3 boot log OK, no TX at boot | 2026-11-09 | **pass** (after jumper fix; first run failed) | First run: flashed over USB (866 KB, hash verified). Boots `ESP-IDF v5.5.6`, `SPI_FAST_FLASH_BOOT`, ESPHome 2026.10.2. Wi-Fi connected on 2.4 GHz (`192.168.29.140`), API and OTA (encrypted) up, no `remote_transmitter` activity at boot. **CC1101 failed:** `CC1101 found! Chip ID: 0xF77F` then `cc1101 is marked FAILED`. A real CC1101 reports PARTNUM `0x00` and VERSION `0x14` (some clones `0x04`/`0x07`), so SPI reads return garbage: check VCC/GND, CS (GPIO10), SCK (GPIO12), MOSI (GPIO11) and MISO (GPIO13). Earlier silence was the chip sitting in ROM download mode (`rst:0x15`, `boot:0x3`, `waiting for download`) after `esphome logs` opened the port with DTR/RTS asserted; fixed with `logger: deassert_rts_dtr: true`. **Photo inspection afterwards:** power, SCK and MISO match the plan, but the CS and MOSI jumpers are crossed (GPIO10 goes to radio pin 6 MOSI and GPIO11 to pin 4 CSN). The two jumpers are being swapped at the ESP end; the firmware keeps the planned pins. See "As built" in the wiring doc. **Re-run after the swap (same firmware, no reflash):** the config dump over the Wi-Fi API shows `CC1101: Chip ID: 0x0014`, `Frequency: 433919840 Hz`, `Modulation: ASK/OOK`, `CS Pin: GPIO10`, SPI `SDO GPIO11`/`SDI GPIO13`/`CLK GPIO12` on `SPI2_HOST`, and no component marked FAILED. The receiver on GPIO5 logs short noise bursts (100–375 µs), so the radio is in RX. No transmitter activity. |
 | H4 receive: Power (`7B50020C`) | 2026-11-09 | pass | Original remote, two presses (17:09:58, 17:09:59). Received 12 of 12 frames clean, 65 values each, checksum OK, all decoding to `7B50020C`. Median timings: short high 242 µs, long high 734 µs, short low 243 µs, long low 730 µs, sync high 245 µs. The Flipper `Pwr.sub` medians are 249/737/240/726/249, so every value is within 7 µs. The trailing −7.5 ms gap ends each frame, so the receiver logs it as idle and not as a value. |
 | H4 receive: Brightness up (`7B50030D`) | 2026-11-09 | pass | Original remote, one press (17:09:55). Received 7 of 7 frames clean, all decoding to `7B50030D` (matches `Bup.sub`). |
-| H4 receive: remaining buttons | | | Not yet run: bright_down, cool, read, night, middle, leisure, and whichever button sends `unknown_0b`. |
+| H4 receive: remaining buttons | | | Not yet run: the other 11 of the remote's 13 buttons (see [Remote buttons](radio-captures.md#remote-buttons)). |
 | H4 note: GDO0/GDO2 yellow wires | 2026-11-09 | found crossed | ESPHome sets both GDO0 and GDO2 to serial data out in RX (`IOCFG0 = IOCFG2 = 0x0D`), so receiving on GPIO5 does not show which yellow wire reaches GDO0. Only GDO0 is the TX data input. Traced by hand: radio pin 3 (GDO0) went to ESP 5 and pin 8 (GDO2) to ESP 4, so they were crossed. The fix is to turn the 2-pin housing on ESP 4–5 end-for-end. The firmware keeps GPIO4 for TX and GPIO5 for RX. Re-check receive after the fix, before H5. |
 | H5 power: best `tx_repeat`, double-toggle? | 2026-11-09 | **pass** (Power `7B50020C`, `tx_repeat` 8) | Device added to Home Assistant over the encrypted API. Pressing Power in HA toggled the lamp once, with no double toggle, from about 1.5 m (5 ft), with the antenna attached. For comparison, H4 logged 6–7 frames about 40 ms apart for one short press of the original remote, so 8 repeats (about 0.3 s on air) is close to what the remote sends. **Restart check: pass.** After a USB power cycle and 1 minute of waiting, the lamp did not change. **Minimum `tx_repeat`: 3.** The user swept counts upward from 1 at the same distance and reports 3 as the lowest reliable count. 8 also toggled the lamp once, so 3 and 8 bracket the usable range with no double toggle seen. **Chosen: `tx_repeat` 8,** nearly 3× the minimum and close to the 6–7 frames the real remote sends. |
 
@@ -20,8 +20,16 @@ H1 and H2 were run by the user on November 9, 2026, on macOS with `esptool v5.6.
 `scripts/record_presses.py` guides the test. It prompts for one button at a time, records the frames the board receives and the lamp effect you type, and prints a pass/fail table. It only listens. Run it from the repository root, with the board on Wi-Fi:
 
 ```bash
-python3 scripts/record_presses.py --order power,bright_up,bright_down,cool,read,night,middle,leisure
+python3 scripts/record_presses.py
 ```
+
+With no options it walks all 13 remote buttons in order, using the user's names: Night mode, Power, Color cooler, Brightness up, Color warmer, Brightness down, Center sun, Coffee cup, Baby bottle, Laptop, Book, Gaming, Tachometer. `--order "Laptop,Gaming"` picks a subset, and `--ask` prompts for each name. The verdicts are:
+
+- `PASS`: the button sent its expected code.
+- `WRONG`: it sent another button's code.
+- `LEARNED`: a button with no capture sent a new code.
+- `CONFLICT`: it sent a code already assigned to a different button.
+- `NONE`: nothing was received.
 
 Session files go to `captures/sessions/`. They hold only frames, step names and notes, with no Wi-Fi details or keys. Re-print a session's table with `python3 -m tools.press_log captures/sessions/<file>.log`.
 

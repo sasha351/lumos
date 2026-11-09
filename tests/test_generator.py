@@ -77,9 +77,36 @@ class GeneratorTests(unittest.TestCase):
 
     def test_exposing_unverified_is_refused(self):
         manifest = load_manifest()
-        entry(manifest, "bright_up").update({"expose": True, "verified": False})
+        entry(manifest, "brightness_up").update({"expose": True, "verified": False})
         with self.assertRaisesRegex(GeneratorError, "only verified"):
             render_esphome(manifest, self.reports)
+
+    def test_button_without_code_cannot_be_exposed(self):
+        manifest = load_manifest()
+        entry(manifest, "color_warmer").update({"expose": True, "verified": True})
+        with self.assertRaisesRegex(GeneratorError, "no captured code"):
+            render_esphome(manifest, self.reports)
+
+    def test_duplicate_position_is_refused(self):
+        manifest = load_manifest()
+        entry(manifest, "laptop")["position"] = 2
+        with self.assertRaisesRegex(GeneratorError, "duplicate position 2"):
+            render_esphome(manifest, self.reports)
+
+    def test_one_pattern_maps_to_one_entry(self):
+        manifest = load_manifest()
+        entry(manifest, "laptop").update({"source": "Pwr.sub", "pattern": "7B50020C"})
+        with self.assertRaisesRegex(GeneratorError, "already belongs to power"):
+            render_esphome(manifest, self.reports)
+
+    def test_manifest_lists_the_13_remote_buttons_in_order(self):
+        buttons = sorted((c for c in load_manifest()["commands"] if c.get("position")), key=lambda c: c["position"])
+        self.assertEqual([c["position"] for c in buttons], list(range(1, 14)))
+        self.assertEqual(
+            [c["label"] for c in buttons],
+            ["Night mode", "Power", "Color cooler", "Brightness up", "Color warmer", "Brightness down",
+             "Center sun", "Coffee cup", "Baby bottle", "Laptop", "Book", "Gaming", "Tachometer"],
+        )
 
     def test_every_exposed_command_is_verified_and_logged(self):
         log = (REPO / "docs" / "hardware-test-log.md").read_text(encoding="utf-8")
