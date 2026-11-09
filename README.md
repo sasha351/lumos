@@ -12,6 +12,7 @@ The active project is `/Users/sasha/Documents/lumos`. Its existing Git remote is
 
 - [Wiring and hardware](CC1101-ESP32-S3-wiring.md)
 - [Implementation plan](docs/superpowers/plans/2026-11-09-lamp-controller.md)
+- [Subagent execution plan (Copilot)](docs/superpowers/plans/2026-11-09-copilot-subagent-plan.md) and [agent guardrails](.github/copilot-instructions.md)
 - [Capture observations and uncertain labels](docs/radio-captures.md)
 - [Original captures](captures/original/) — all 12 files, verified against Downloads with SHA-256
 - [Migration provenance and checksums](docs/migration.md)
