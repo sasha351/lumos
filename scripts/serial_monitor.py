@@ -26,6 +26,7 @@ def main() -> int:
     port = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_PORT
     print(f"Waiting for {port}. Tap RST on the board now. Ctrl+C to stop.", flush=True)
     connected_once = False
+    last_error = None
     while True:
         try:
             ser = serial.Serial()
@@ -34,15 +35,20 @@ def main() -> int:
             ser.open()
             print("\n--- connected ---", flush=True)
             connected_once = True
+            last_error = None
             while True:
                 data = ser.read(4096)
                 if data:
                     sys.stdout.write(data.decode("utf-8", "replace"))
                     sys.stdout.flush()
-        except (serial.SerialException, OSError):
+        except (serial.SerialException, OSError) as exc:
             if connected_once:
                 print("\n--- port dropped, reconnecting ---", flush=True)
                 connected_once = False
+            elif str(exc) != last_error:
+                # Show each new reason once (e.g. port busy) instead of retrying silently.
+                print(f"--- cannot open yet: {exc}", flush=True)
+            last_error = str(exc)
             time.sleep(0.05)
         except KeyboardInterrupt:
             print("\n--- stopped ---")
