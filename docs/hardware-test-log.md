@@ -13,7 +13,7 @@ H1 and H2 were run by the user on November 9, 2026, on macOS with `esptool v5.6.
 | H4 receive: Brightness up (`7B50030D`) | 2026-11-09 | pass | Original remote, one press (17:09:55). Received 7 of 7 frames clean, all decoding to `7B50030D` (matches `Bup.sub`). |
 | H4 receive: remaining buttons | | | Not yet run: bright_down, cool, read, night, middle, leisure, and whichever button sends `unknown_0b`. |
 | H4 note: GDO0/GDO2 yellow wires | 2026-11-09 | found crossed | ESPHome sets both GDO0 and GDO2 to serial data out in RX (`IOCFG0 = IOCFG2 = 0x0D`), so receiving on GPIO5 does not show which yellow wire reaches GDO0. Only GDO0 is the TX data input. Traced by hand: radio pin 3 (GDO0) went to ESP 5 and pin 8 (GDO2) to ESP 4, so they were crossed. The fix is to turn the 2-pin housing on ESP 4–5 end-for-end. The firmware keeps GPIO4 for TX and GPIO5 for RX. Re-check receive after the fix, before H5. |
-| H5 power: best `tx_repeat`, double-toggle? | | | |
+| H5 power: best `tx_repeat`, double-toggle? | 2026-11-09 | **pass** (Power, `tx_repeat` 8) | Device added to Home Assistant over the encrypted API. Pressing Power in HA toggled the lamp once, with no double toggle, from about 1.5 m (5 ft), with the antenna attached. For comparison, H4 logged 6–7 frames about 40 ms apart for one short press of the original remote, so 8 repeats (about 0.3 s on air) is close to what the remote sends. Not yet run: the sweep over `tx_repeat` 3, 5 and 12, and the restart check (no spontaneous lamp action after a power cycle). |
 
 ## Firmware settings implied by H1
 
