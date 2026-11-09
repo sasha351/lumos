@@ -8,7 +8,7 @@ H1 and H2 were run by the user on November 9, 2026, on macOS with `esptool v5.6.
 | --- | --- | --- | --- |
 | H1 chip / flash / PSRAM | 2026-11-09 | pass | `ESP32-S3 (QFN56) (revision v0.2)`; features `Wi-Fi, BT 5 (LE), Dual Core + LP Core, 240MHz, Embedded PSRAM 8MB (AP_3v3)`; crystal 40 MHz; USB mode `USB-Serial/JTAG`; flash manufacturer `68`, device `4018`, detected size `16MB`, eFuse flash type quad, flash voltage 3.3 V. |
 | H2 backup file + SHA-256 | 2026-11-09 | pass | `read-flash 0 ALL` read 16,777,216 bytes in 72.8 s to `lumos-factory-backup.bin`. `verify-flash 0` reported `Verification successful (digest matched)`. SHA-256 `5399f1416b3f6e64969f353d6d0189c2d40497b6ed249af6748604b9d3c9c147`. The file is git-ignored (`*.bin`) and is kept only on the user's laptop. |
-| H3 boot log OK, no TX at boot | | | |
+| H3 boot log OK, no TX at boot | 2026-11-09 | **fail (radio)** | Flashed over USB (866 KB, hash verified). Boots `ESP-IDF v5.5.6`, `SPI_FAST_FLASH_BOOT`, ESPHome 2026.10.2. Wi-Fi connected on 2.4 GHz (`192.168.29.140`), API and OTA (encrypted) up, no `remote_transmitter` activity at boot. **CC1101 failed:** `CC1101 found! Chip ID: 0xF77F` then `cc1101 is marked FAILED`. A real CC1101 reports PARTNUM `0x00` and VERSION `0x14` (some clones `0x04`/`0x07`), so SPI reads return garbage: check VCC/GND, CS (GPIO10), SCK (GPIO12), MOSI (GPIO11) and MISO (GPIO13). Earlier silence was the chip sitting in ROM download mode (`rst:0x15`, `boot:0x3`, `waiting for download`) after `esphome logs` opened the port with DTR/RTS asserted; fixed with `logger: deassert_rts_dtr: true`. |
 | H4 receive per button (one row each) | | | |
 | H5 power: best `tx_repeat`, double-toggle? | | | |
 
