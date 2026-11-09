@@ -17,11 +17,11 @@ The observations below are preserved from prior analysis, not a new decoding run
 | Bup.sub | `7B50030D` / 21 | — |
 | Bdwn.sub | `7B500709` / 22 | — |
 | SubGHz_2026-10-23_14,53,23.sub | `7B50050B` / 22 | `7B500B05` / 3 |
-| SubGHz_2026-10-23_14,53,06.sub | `7B500B05` / 30 | Unknown function |
+| SubGHz_2026-10-23_14,53,06.sub | `7B500B05` / 30 | Baby bottle (identified in H4) |
 | SubGHz_2026-10-23_14,52,52.sub | Same bytes as Lei.sub | Duplicate retained |
 | SubGHz_2026-10-23_14,48,37.sub | Same bytes as Pwr.sub | Duplicate retained |
 
-Power (`7B50020C`) is confirmed on hardware: transmitted from Home Assistant, it toggles the lamp (H5 in the [hardware test log](hardware-test-log.md)).
+Power (`7B50020C`) is confirmed on hardware: transmitted from Home Assistant, it toggles the lamp (H5 in the [hardware test log](hardware-test-log.md)). Mixed recordings must not be replayed wholesale. The formerly unknown `7B500B05` capture is the Baby bottle button (H4); any future unidentified code stays unexposed. Power may toggle rather than set a discrete state, and brightness commands do not establish absolute brightness or provide lamp-state feedback.
 
 ## Remote buttons
 

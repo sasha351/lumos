@@ -18,6 +18,7 @@ Lumos controls a 433.92 MHz lamp from Home Assistant using an ESP32-S3 and a CC1
 - Write tests first (TDD) for parser, decoder, and generator logic.
 - ESPHome is pinned to `2026.10.2`. Validate with `esphome config esphome/lamp-controller.yaml` after copying `secrets.example.yaml` to `secrets.yaml`. The output must contain zero `WARNING` lines. Delete the copied `secrets.yaml` before committing.
 - Refer to remote buttons by the user's names: the `label` values in `captures/commands.json` (Night mode, Power, Color cooler, ...). `position` is the button's place on the remote, 1–13. Entries with `position: null` are captures whose button is not identified yet.
+- A code learned on the board's receiver, with no Flipper capture, has `source: null`. It must name a `timing_source` capture to borrow timings from, and `evidence` pointing to the H4 session that learned it. The generator enforces both.
 - Pulse units are microseconds. Positive values mean carrier on, negative values mean off. Bits are MSB first.
 - Keep each PR to one plan task. In the PR description, list every acceptance criterion with its status.
 - If the sandbox blocks a download (for example PlatformIO toolchains), say so in the PR. Don't work around the firewall.
