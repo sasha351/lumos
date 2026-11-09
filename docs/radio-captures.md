@@ -29,21 +29,21 @@ The remote has 13 buttons. The project uses the user's names for them, in the or
 
 | # | Button (`id`) | Remote icon / diagram name | Diagram spec | Code | Waveform built from | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Night mode (`night_mode`) | moon / Night Light | — | `7B50010F` | Nght.sub | verified (H4) |
+| 1 | Night mode (`night_mode`) | moon / Night Light | — | `7B50010F` | Nght.sub | verified (H4, H5) |
 | 2 | Power (`power`) | power / ON/OFF | — | `7B50020C` | Pwr.sub | verified (H4, H5) |
-| 3 | Color warmer (`color_warmer`) | ring left / Color Temperature + | — | `7B50040A` | Pwr.sub timings (no capture) | verified (H4) |
-| 4 | Brightness up (`brightness_up`) | ring top / Brightness + | — | `7B50030D` | Bup.sub | verified (H4) |
-| 5 | Color cooler (`color_cooler`) | ring right / Color Temperature − | — | `7B500608` | Cool.sub | verified (H4) |
-| 6 | Brightness down (`brightness_down`) | ring bottom / Brightness − | — | `7B500709` | Bdwn.sub | verified (H4) |
-| 7 | Cool 100% (`cool_100`) | ring centre sun | 5500K, 100% cool light, 100% brightness | `7B50050B` | Middl.sub | verified (H4) |
-| 8 | Warm 100% (`warm_100`) | coffee cup / Leisure | 3000K, 100% warm light, 100% brightness | `7B500806` | Lei.sub | verified (H4) |
-| 9 | Warm 50% (`warm_50`) | baby bottle / Breastfeeding | 3000K; listed as "50% warm light & 100% brightness", taken as 50% brightness | `7B500B05` | SubGHz_2026-10-23_14,53,06.sub | verified (H4); brightness to confirm |
-| 10 | Cool 50% (`cool_50`) | laptop / Office | 5500K, 100% cool light, 50% brightness | `7B500A04` | Pwr.sub timings (no capture) | verified (H4) |
-| 11 | Neutral 100% (`neutral_100`) | book / Reading | 4000K, 50% warm + 50% cool, 100% brightness | `7B500907` | Read.sub | verified (H4) |
-| 12 | Neutral 50% (`neutral_50`) | gamepad / Entertainment | 4000K, 50% warm + 50% cool, 50% brightness | `7B500C02` | Pwr.sub timings (no capture) | verified (H4) |
+| 3 | Color warmer (`color_warmer`) | ring left / Color Temperature + | — | `7B50040A` | Pwr.sub timings (no capture) | verified (H4, H5) |
+| 4 | Brightness up (`brightness_up`) | ring top / Brightness + | — | `7B50030D` | Bup.sub | verified (H4, H5) |
+| 5 | Color cooler (`color_cooler`) | ring right / Color Temperature − | — | `7B500608` | Cool.sub | verified (H4, H5) |
+| 6 | Brightness down (`brightness_down`) | ring bottom / Brightness − | — | `7B500709` | Bdwn.sub | verified (H4, H5) |
+| 7 | Cool 100% (`cool_100`) | ring centre sun | 5500K, 100% cool light, 100% brightness | `7B50050B` | Middl.sub | verified (H4, H5) |
+| 8 | Warm 100% (`warm_100`) | coffee cup / Leisure | 3000K, 100% warm light, 100% brightness | `7B500806` | Lei.sub | verified (H4, H5) |
+| 9 | Warm 50% (`warm_50`) | baby bottle / Breastfeeding | 3000K; listed as "50% warm light & 100% brightness", taken as 50% brightness; user confirms it works as named | `7B500B05` | SubGHz_2026-10-23_14,53,06.sub | verified (H4, H5) |
+| 10 | Cool 50% (`cool_50`) | laptop / Office | 5500K, 100% cool light, 50% brightness | `7B500A04` | Pwr.sub timings (no capture) | verified (H4, H5) |
+| 11 | Neutral 100% (`neutral_100`) | book / Reading | 4000K, 50% warm + 50% cool, 100% brightness | `7B500907` | Read.sub | verified (H4, H5) |
+| 12 | Neutral 50% (`neutral_50`) | gamepad / Entertainment | 4000K, 50% warm + 50% cool, 50% brightness | `7B500C02` | Pwr.sub timings (no capture) | verified (H4, H5) |
 | 13 | Timer (`timer`) | gauge / Timer | 10/40-minute auto off | `7B500D03` | Pwr.sub timings (no capture) | verified (H4); **not exposed**, by the user's choice |
 
-The guided H4 session on 2026-11-09 pressed every button on the original remote. The board decoded 5–6 clean frames per press, and the user saw the expected lamp effect each time (details in the [hardware test log](hardware-test-log.md)). The third byte of the code numbers the buttons 01–0D, with no gaps. The six mode buttons are named for the color and brightness the product diagram gives them: warm 3000K, neutral 4000K and cool 5500K, each at 100% and 50%. The diagram's mode names (Leisure, Reading and so on) are not used. Four buttons were never recorded with the Flipper: Color warmer, Cool 50%, Neutral 50% and Timer. Their codes come from the board's receiver. Their waveforms use the Pwr.sub timings, since every button measured within a few microseconds of the others (`timing_source` in `captures/commands.json`). Only Power has been confirmed transmitting from Home Assistant (H5).
+The guided H4 session on 2026-11-09 pressed every button on the original remote. The board decoded 5–6 clean frames per press, and the user saw the expected lamp effect each time (details in the [hardware test log](hardware-test-log.md)). The third byte of the code numbers the buttons 01–0D, with no gaps. The six mode buttons are named for the color and brightness the product diagram gives them: warm 3000K, neutral 4000K and cool 5500K, each at 100% and 50%. The diagram's mode names (Leisure, Reading and so on) are not used. Four buttons were never recorded with the Flipper: Color warmer, Cool 50%, Neutral 50% and Timer. Their codes come from the board's receiver. Their waveforms use the Pwr.sub timings, since every button measured within a few microseconds of the others (`timing_source` in `captures/commands.json`). All 12 exposed buttons are confirmed transmitting from Home Assistant (H5).
 
 ## Reproduce
 
