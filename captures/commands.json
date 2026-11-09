@@ -1,0 +1,13 @@
+{
+  "commands": [
+    {"id": "power",       "source": "Pwr.sub",   "pattern": "7B50020C", "label": "Power",            "icon": "mdi:power",            "expose": true,  "verified": false},
+    {"id": "bright_up",   "source": "Bup.sub",   "pattern": "7B50030D", "label": "Brightness up",    "icon": "mdi:brightness-7",     "expose": false, "verified": false},
+    {"id": "bright_down", "source": "Bdwn.sub",  "pattern": "7B500709", "label": "Brightness down",  "icon": "mdi:brightness-5",     "expose": false, "verified": false},
+    {"id": "cool",        "source": "Cool.sub",  "pattern": "7B500608", "label": "Cool",             "icon": "mdi:snowflake",        "expose": false, "verified": false},
+    {"id": "read",        "source": "Read.sub",  "pattern": "7B500907", "label": "Read",             "icon": "mdi:book-open-variant","expose": false, "verified": false},
+    {"id": "night",       "source": "Nght.sub",  "pattern": "7B50010F", "label": "Night",            "icon": "mdi:weather-night",    "expose": false, "verified": false},
+    {"id": "middle",      "source": "Middl.sub", "pattern": "7B50050B", "label": "Middle",           "icon": "mdi:circle-half-full", "expose": false, "verified": false},
+    {"id": "leisure",     "source": "Lei.sub",   "pattern": "7B500806", "label": "Leisure",          "icon": "mdi:sofa",             "expose": false, "verified": false},
+    {"id": "unknown_0b",  "source": "SubGHz_2026-10-23_14,53,06.sub", "pattern": "7B500B05", "label": "Unknown 0x0B", "icon": "mdi:help", "expose": false, "verified": false}
+  ]
+}
