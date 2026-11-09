@@ -14,7 +14,7 @@ H1 and H2 were run by the user on November 9, 2026, on macOS with `esptool v5.6.
 
 ## Firmware settings implied by H1
 
-- **PSRAM:** 8 MB embedded PSRAM is the ESP32-S3R8 die variant, which is octal. Configure `psram: mode: octal`.
+- **PSRAM:** 8 MB embedded PSRAM is the ESP32-S3R8 die variant, which is octal. The firmware leaves PSRAM unconfigured because it does not need it; if it is ever enabled, use `psram: mode: octal`.
 - **Flash:** `flash_size: 16MB`.
 - **Logging:** the board uses the native USB-Serial/JTAG peripheral, so set `logger: hardware_uart: USB_SERIAL_JTAG` to see boot logs on the USB port.
 - **Pins:** the selected radio pins (GPIO 4, 5, 10, 11, 12 and 13) do not collide with octal PSRAM (GPIO 33–37), native USB (GPIO 19–20) or strapping pins (GPIO 0, 3, 45, 46).
