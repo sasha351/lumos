@@ -4,7 +4,7 @@ Control an existing 433.92 MHz lamp from Home Assistant with a DORHEA ESP32-S3 N
 
 ## Status
 
-Evidence and planning only. The user reports that the boards are soldered according to the wiring diagram, connected to the laptop, and that Flipper replay controls the lamp. Board identity, physical wiring, and radio operation have not been independently verified. No firmware has been created or flashed, and no Home Assistant integration has been configured.
+Evidence and planning only. The user reports that the boards are soldered according to the wiring diagram, connected to the laptop, and that Flipper replay controls the lamp. Board identity (ESP32-S3, 16 MB flash, 8 MB octal PSRAM) and a verified factory-firmware backup are recorded in the [hardware test log](docs/hardware-test-log.md). Physical wiring and radio operation have not been verified. No firmware has been created or flashed, and no Home Assistant integration has been configured.
 
 The active project is `/Users/sasha/Documents/lumos`. Its existing Git remote is `https://github.com/sasha351/lumos.git`. Both old project paths have been cleared after preserving the source files. The remote was preserved; the user subsequently authorized committing and pushing the migration to `main`.
 
@@ -13,6 +13,7 @@ The active project is `/Users/sasha/Documents/lumos`. Its existing Git remote is
 - [Wiring and hardware](CC1101-ESP32-S3-wiring.md)
 - [Implementation plan](docs/superpowers/plans/2026-11-09-lamp-controller.md)
 - [Subagent execution plan (Copilot)](docs/superpowers/plans/2026-11-09-copilot-subagent-plan.md) and [agent guardrails](.github/copilot-instructions.md)
+- [Hardware test log](docs/hardware-test-log.md)
 - [Capture observations and uncertain labels](docs/radio-captures.md)
 - [Original captures](captures/original/) — all 12 files, verified against Downloads with SHA-256
 - [Migration provenance and checksums](docs/migration.md)
