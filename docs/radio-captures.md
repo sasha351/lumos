@@ -17,33 +17,33 @@ The observations below are preserved from prior analysis, not a new decoding run
 | Bup.sub | `7B50030D` / 21 | — |
 | Bdwn.sub | `7B500709` / 22 | — |
 | SubGHz_2026-10-23_14,53,23.sub | `7B50050B` / 22 | `7B500B05` / 3 |
-| SubGHz_2026-10-23_14,53,06.sub | `7B500B05` / 30 | Baby bottle (identified in H4) |
+| SubGHz_2026-10-23_14,53,06.sub | `7B500B05` / 30 | Warm 50% button (identified in H4) |
 | SubGHz_2026-10-23_14,52,52.sub | Same bytes as Lei.sub | Duplicate retained |
 | SubGHz_2026-10-23_14,48,37.sub | Same bytes as Pwr.sub | Duplicate retained |
 
-Power (`7B50020C`) is confirmed on hardware: transmitted from Home Assistant, it toggles the lamp (H5 in the [hardware test log](hardware-test-log.md)). Mixed recordings must not be replayed wholesale. The formerly unknown `7B500B05` capture is the Baby bottle button (H4); any future unidentified code stays unexposed. Power may toggle rather than set a discrete state, and brightness commands do not establish absolute brightness or provide lamp-state feedback.
+Power (`7B50020C`) is confirmed on hardware: transmitted from Home Assistant, it toggles the lamp (H5 in the [hardware test log](hardware-test-log.md)). Mixed recordings must not be replayed wholesale. The formerly unknown `7B500B05` capture is the Warm 50% button (H4); any future unidentified code stays unexposed. Power may toggle rather than set a discrete state, and brightness commands do not establish absolute brightness or provide lamp-state feedback.
 
 ## Remote buttons
 
 The remote has 13 buttons. The project uses the user's names for them, in the order they sit on the remote. `position` in `captures/commands.json` records that order.
 
-| # | Button (`id`) | Code | Waveform built from | Status |
-| --- | --- | --- | --- | --- |
-| 1 | Night mode (`night_mode`) | `7B50010F` | Nght.sub | verified (H4) |
-| 2 | Power (`power`) | `7B50020C` | Pwr.sub | verified (H4, H5) |
-| 3 | Color cooler (`color_cooler`) | `7B50040A` | Pwr.sub timings (no capture) | verified (H4); learned on the board |
-| 4 | Brightness up (`brightness_up`) | `7B50030D` | Bup.sub | verified (H4) |
-| 5 | Color warmer (`color_warmer`) | `7B500608` | Cool.sub | verified (H4); the Flipper file name is wrong |
-| 6 | Brightness down (`brightness_down`) | `7B500709` | Bdwn.sub | verified (H4) |
-| 7 | Center sun (`center_sun`) | `7B50050B` | Middl.sub | verified (H4) |
-| 8 | Coffee cup (`coffee_cup`) | `7B500806` | Lei.sub | verified (H4) |
-| 9 | Baby bottle (`baby_bottle`) | `7B500B05` | SubGHz_2026-10-23_14,53,06.sub | verified (H4); formerly `unknown_0b` |
-| 10 | Laptop (`laptop`) | `7B500A04` | Pwr.sub timings (no capture) | verified (H4); learned on the board |
-| 11 | Book (`book`) | `7B500907` | Read.sub | verified (H4) |
-| 12 | Gaming (`gaming`) | `7B500C02` | Pwr.sub timings (no capture) | verified (H4); learned on the board |
-| 13 | Tachometer (`tachometer`) | `7B500D03` | Pwr.sub timings (no capture) | verified (H4); learned on the board |
+| # | Button (`id`) | Remote icon / diagram name | Diagram spec | Code | Waveform built from | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | Night mode (`night_mode`) | moon / Night Light | — | `7B50010F` | Nght.sub | verified (H4) |
+| 2 | Power (`power`) | power / ON/OFF | — | `7B50020C` | Pwr.sub | verified (H4, H5) |
+| 3 | Color warmer (`color_warmer`) | ring left / Color Temperature + | — | `7B50040A` | Pwr.sub timings (no capture) | verified (H4) |
+| 4 | Brightness up (`brightness_up`) | ring top / Brightness + | — | `7B50030D` | Bup.sub | verified (H4) |
+| 5 | Color cooler (`color_cooler`) | ring right / Color Temperature − | — | `7B500608` | Cool.sub | verified (H4) |
+| 6 | Brightness down (`brightness_down`) | ring bottom / Brightness − | — | `7B500709` | Bdwn.sub | verified (H4) |
+| 7 | Cool 100% (`cool_100`) | ring centre sun | 5500K, 100% cool light, 100% brightness | `7B50050B` | Middl.sub | verified (H4) |
+| 8 | Warm 100% (`warm_100`) | coffee cup / Leisure | 3000K, 100% warm light, 100% brightness | `7B500806` | Lei.sub | verified (H4) |
+| 9 | Warm 50% (`warm_50`) | baby bottle / Breastfeeding | 3000K; listed as "50% warm light & 100% brightness", taken as 50% brightness | `7B500B05` | SubGHz_2026-10-23_14,53,06.sub | verified (H4); brightness to confirm |
+| 10 | Cool 50% (`cool_50`) | laptop / Office | 5500K, 100% cool light, 50% brightness | `7B500A04` | Pwr.sub timings (no capture) | verified (H4) |
+| 11 | Neutral 100% (`neutral_100`) | book / Reading | 4000K, 50% warm + 50% cool, 100% brightness | `7B500907` | Read.sub | verified (H4) |
+| 12 | Neutral 50% (`neutral_50`) | gamepad / Entertainment | 4000K, 50% warm + 50% cool, 50% brightness | `7B500C02` | Pwr.sub timings (no capture) | verified (H4) |
+| 13 | Timer (`timer`) | gauge / Timer | 10/40-minute auto off | `7B500D03` | Pwr.sub timings (no capture) | verified (H4); **not exposed**, by the user's choice |
 
-The guided H4 session on 2026-11-09 pressed every button on the original remote. The board decoded 5–6 clean frames per press, and the user saw the expected lamp effect each time (details in the [hardware test log](hardware-test-log.md)). The third byte of the code numbers the buttons 01–0D, with no gaps. Four buttons were never recorded with the Flipper: Color cooler, Laptop, Gaming and Tachometer. Their codes come from the board's receiver. Their waveforms use the Pwr.sub timings, since every button measured within a few microseconds of the others (`timing_source` in `captures/commands.json`). Power is the only button so far that has also been confirmed transmitting from Home Assistant (H5).
+The guided H4 session on 2026-11-09 pressed every button on the original remote. The board decoded 5–6 clean frames per press, and the user saw the expected lamp effect each time (details in the [hardware test log](hardware-test-log.md)). The third byte of the code numbers the buttons 01–0D, with no gaps. The six mode buttons are named for the color and brightness the product diagram gives them: warm 3000K, neutral 4000K and cool 5500K, each at 100% and 50%. The diagram's mode names (Leisure, Reading and so on) are not used. Four buttons were never recorded with the Flipper: Color warmer, Cool 50%, Neutral 50% and Timer. Their codes come from the board's receiver. Their waveforms use the Pwr.sub timings, since every button measured within a few microseconds of the others (`timing_source` in `captures/commands.json`). Only Power has been confirmed transmitting from Home Assistant (H5).
 
 ## Reproduce
 

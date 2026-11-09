@@ -135,7 +135,7 @@ class LearningTests(unittest.TestCase):
     def test_remote_buttons_are_in_physical_order(self):
         from tools.press_log import remote_buttons
         labels = [c["label"] for c in remote_buttons(load_manifest())]
-        self.assertEqual(labels[:3], ["Night mode", "Power", "Color cooler"])
+        self.assertEqual(labels[:3], ["Night mode", "Power", "Color warmer"])
         self.assertEqual(len(labels), 13)
 
 
@@ -144,7 +144,8 @@ class LookupAndCliTests(unittest.TestCase):
         manifest = load_manifest()
         self.assertEqual(find_command("Brightness up", manifest)["id"], "brightness_up")
         self.assertEqual(find_command("night_mode", manifest)["label"], "Night mode")
-        self.assertEqual(find_command("CENTER SUN", manifest)["id"], "center_sun")
+        self.assertEqual(find_command("NEUTRAL 100%", manifest)["id"], "neutral_100")
+        self.assertEqual(find_command("warm 50", manifest)["id"], "warm_50")
         self.assertEqual(find_command("POWER", manifest)["id"], "power")
         self.assertIsNone(find_command("mystery", manifest))
 

@@ -16,7 +16,7 @@ H1 and H2 were run by the user on November 9, 2026, on macOS with `esptool v5.6.
 | H4 receive: Night mode (`7B50010F`) | 2026-11-09 | pass | Session step 2: 7B50010F x6, 0 rejected; median timings (µs, short high, long high, short low, long low, sync) 242 736 241 730 240. Lamp: success. Matches `Nght.sub`. |
 | H4 receive: Color cooler (`7B50040A`) | 2026-11-09 | pass | Session step 3: 7B50040A x6, 0 rejected; median timings (µs, short high, long high, short low, long low, sync) 242 734 241 730 242. Lamp: the lamp was already at its coolest, and the user reports it behaved as expected. **New code, never captured with the Flipper.** Re-check from Home Assistant when the lamp is not already at its coolest. |
 | H4 receive: Brightness up (`7B50030D`) | 2026-11-09 | pass | Session step 4: 7B50030D x6, 0 rejected; median timings (µs, short high, long high, short low, long low, sync) 244 734 242 728 230. Lamp: success. Matches `Bup.sub`. |
-| H4 receive: Color warmer (`7B500608`) | 2026-11-09 | pass | Session step 5: 7B500608 x6, 0 rejected; median timings (µs, short high, long high, short low, long low, sync) 243 735 243 729 244. Lamp: success. **This is the code in `Cool.sub`**: the Flipper file was named for the wrong button. The user noted the swap during the session. |
+| H4 receive: Color warmer (`7B500608`) | 2026-11-09 | pass | Session step 5: 7B500608 x6, 0 rejected; median timings (µs, short high, long high, short low, long low, sync) 243 735 243 729 244. Lamp: success. Matches `Cool.sub`. Recorded here under the session prompt's name, which was wrong; see the correction row below. |
 | H4 receive: Brightness down (`7B500709`) | 2026-11-09 | pass | Session step 6: 7B500709 x6, 0 rejected; median timings (µs, short high, long high, short low, long low, sync) 244 735 243 726 244. Lamp: success. Matches `Bdwn.sub`. |
 | H4 receive: Center sun (`7B50050B`) | 2026-11-09 | pass | Session step 7: 7B50050B x6, 0 rejected; median timings (µs, short high, long high, short low, long low, sync) 242 734 243 729 240. Lamp: success. Matches `Middl.sub`. |
 | H4 receive: Coffee cup (`7B500806`) | 2026-11-09 | pass | Session step 8: 7B500806 x6, 0 rejected; median timings (µs, short high, long high, short low, long low, sync) 242 734 243 730 244. Lamp: success. Same code as `Lei.sub` ("leisure"). |
@@ -25,6 +25,8 @@ H1 and H2 were run by the user on November 9, 2026, on macOS with `esptool v5.6.
 | H4 receive: Book (`7B500907`) | 2026-11-09 | pass | Session step 11: 7B500907 x6, 0 rejected; median timings (µs, short high, long high, short low, long low, sync) 242 734 243 730 248. Lamp: success. Matches `Read.sub`. |
 | H4 receive: Gaming (`7B500C02`) | 2026-11-09 | pass | Session step 12: 7B500C02 x6, 0 rejected; median timings (µs, short high, long high, short low, long low, sync) 242 735 240 730 258. Lamp: success. **New code, never captured with the Flipper.** |
 | H4 receive: Tachometer (`7B500D03`) | 2026-11-09 | pass | Session step 13: 7B500D03 x6, 0 rejected; median timings (µs, short high, long high, short low, long low, sync) 244 738 241 728 256. Lamp: success. **New code, never captured with the Flipper.** |
+| H4 correction: color temperature | 2026-11-09 | corrected | After the session, the user reported that Color warmer and Color cooler were reversed. `7B50040A` (step 3, the left button of the ring, "Color Temperature +" on the product diagram) is **Color warmer**. `7B500608` (step 5, the right button, "Color Temperature −") is **Color cooler**. That is the code in `Cool.sub`, so the Flipper file name was right all along. Both codes and their H4 passes stand; only the names swapped. |
+| H4 rename: mode buttons | 2026-11-09 | renamed | At the user's request, the mode buttons are named for the color and brightness the product diagram lists, not their icons or the diagram's mode names. Center sun (`7B50050B`, 5500K, 100%) is Cool 100%. Coffee cup / Leisure (`7B500806`, 3000K, 100%) is Warm 100%. Baby bottle / Breastfeeding (`7B500B05`, 3000K) is Warm 50%. Laptop / Office (`7B500A04`, 5500K, 50%) is Cool 50%. Book / Reading (`7B500907`, 4000K, 100%) is Neutral 100%. Gaming / Entertainment (`7B500C02`, 4000K, 50%) is Neutral 50%. The diagram lists Breastfeeding as "50% warm light & 100% brightness". That would be the same as Leisure, so it is taken to mean 50% brightness, which fits the 3 × 2 pattern; this is **not yet confirmed by eye**. Tachometer (`7B500D03`) is the 10/40-minute auto-off **timer**. The user never uses it, so it stays recorded but is not exposed. |
 | H4 note: GDO0/GDO2 yellow wires | 2026-11-09 | found crossed | ESPHome sets both GDO0 and GDO2 to serial data out in RX (`IOCFG0 = IOCFG2 = 0x0D`), so receiving on GPIO5 does not show which yellow wire reaches GDO0. Only GDO0 is the TX data input. Traced by hand: radio pin 3 (GDO0) went to ESP 5 and pin 8 (GDO2) to ESP 4, so they were crossed. The fix is to turn the 2-pin housing on ESP 4–5 end-for-end. The firmware keeps GPIO4 for TX and GPIO5 for RX. Re-check receive after the fix, before H5. |
 | H5 power: best `tx_repeat`, double-toggle? | 2026-11-09 | **pass** (Power `7B50020C`, `tx_repeat` 8) | Device added to Home Assistant over the encrypted API. Pressing Power in HA toggled the lamp once, with no double toggle, from about 1.5 m (5 ft), with the antenna attached. For comparison, H4 logged 6–7 frames about 40 ms apart for one short press of the original remote, so 8 repeats (about 0.3 s on air) is close to what the remote sends. **Restart check: pass.** After a USB power cycle and 1 minute of waiting, the lamp did not change. **Minimum `tx_repeat`: 3.** The user swept counts upward from 1 at the same distance and reports 3 as the lowest reliable count. 8 also toggled the lamp once, so 3 and 8 bracket the usable range with no double toggle seen. **Chosen: `tx_repeat` 8,** nearly 3× the minimum and close to the 6–7 frames the real remote sends. |
 
@@ -36,7 +38,7 @@ H1 and H2 were run by the user on November 9, 2026, on macOS with `esptool v5.6.
 python3 scripts/record_presses.py
 ```
 
-With no options it walks all 13 remote buttons in order, using the user's names: Night mode, Power, Color cooler, Brightness up, Color warmer, Brightness down, Center sun, Coffee cup, Baby bottle, Laptop, Book, Gaming, Tachometer. `--order "Laptop,Gaming"` picks a subset, and `--ask` prompts for each name. The verdicts are:
+With no options it walks every exposed button in remote order: Night mode, Power, Color warmer, Brightness up, Color cooler, Brightness down, Cool 100%, Warm 100%, Warm 50%, Cool 50%, Neutral 100%, Neutral 50%. The hidden Timer is skipped. `--order "Laptop,Gaming"` picks a subset, and `--ask` prompts for each name. The verdicts are:
 
 - `PASS`: the button sent its expected code.
 - `WRONG`: it sent another button's code.
@@ -67,14 +69,14 @@ uvx esptool --port /dev/cu.usbmodem101 write-flash 0 lumos-factory-backup.bin
 | --- | --- | --- | --- |
 | `night_mode` | as named (user: "success") | y | |
 | `power` | as named (user: "success") | y | |
-| `color_cooler` | the lamp was already at its coolest, and the user reports it behaved as expected | y | |
+| `color_warmer` (`7B50040A`) | warmer; recorded in H4 as "Color cooler", corrected by the user | n | Color warmer |
 | `brightness_up` | as named (user: "success") | y | |
-| `color_warmer` | as named (user: "success") | y | |
+| `color_cooler` (`7B500608`) | cooler; recorded in H4 as "Color warmer", corrected by the user | n | Color cooler |
 | `brightness_down` | as named (user: "success") | y | |
-| `center_sun` | as named (user: "success") | y | |
-| `coffee_cup` | as named (user: "success") | y | |
-| `baby_bottle` | as named (user: "success") | y | |
-| `laptop` | as named (user: "success") | y | |
-| `book` | as named (user: "success") | y | |
-| `gaming` | as named (user: "success") | y | |
-| `tachometer` | as named (user: "success") | y | |
+| `cool_100` (`7B50050B`) | user: "success"; diagram 5500K, 100% | n | Cool 100% (was Center sun) |
+| `warm_100` (`7B500806`) | user: "success"; diagram 3000K, 100% | n | Warm 100% (was Coffee cup) |
+| `warm_50` (`7B500B05`) | user: "success"; diagram 3000K, brightness unclear | n | Warm 50% (was Baby bottle) |
+| `cool_50` (`7B500A04`) | user: "success"; diagram 5500K, 50% | n | Cool 50% (was Laptop) |
+| `neutral_100` (`7B500907`) | user: "success"; diagram 4000K, 100% | n | Neutral 100% (was Book) |
+| `neutral_50` (`7B500C02`) | user: "success"; diagram 4000K, 50% | n | Neutral 50% (was Gaming) |
+| `timer` (`7B500D03`) | 10/40-minute auto-off timer (diagram) | n | Timer, not exposed (was Tachometer) |

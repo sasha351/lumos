@@ -8,13 +8,14 @@ prints a pass/fail table. It only listens; the board does not transmit.
 Run it from the repository root, with the board powered and on Wi-Fi:
 
     python3 scripts/record_presses.py                    # every button, top to bottom
-    python3 scripts/record_presses.py --order "Color warmer,Laptop,Gaming"
+    python3 scripts/record_presses.py --order "Color warmer,Cool 50%,Neutral 50%"
     python3 scripts/record_presses.py --ask              # type each name as you go
 
-With no options it walks all 13 remote buttons in the order they sit on the
-remote: Night mode, Power, Color cooler, Brightness up, Color warmer,
-Brightness down, Center sun, Coffee cup, Baby bottle, Laptop, Book, Gaming,
-Tachometer. Names are matched ignoring case and spaces. A name that matches
+With no options it walks every exposed button in the order they sit on the
+remote: Night mode, Power, Color warmer, Brightness up, Color cooler,
+Brightness down, Cool 100%, Warm 100%, Warm 50%, Cool 50%, Neutral 100%,
+Neutral 50%. The hidden Timer button is skipped; name it in --order to test
+it. Names are matched ignoring case and spaces. A name that matches
 nothing is still recorded, for example "mystery 1".
 
 Re-print the table for a saved session at any time:
@@ -68,7 +69,7 @@ def main(argv: list[str] | None = None) -> int:
     elif args.order:
         order = [name.strip() for name in args.order.split(",") if name.strip()]
     else:
-        order = [cmd["label"] for cmd in remote_buttons(manifest)]
+        order = [cmd["label"] for cmd in remote_buttons(manifest) if cmd["expose"]]
     if order:
         unknown = [name for name in order if find_command(name, manifest) is None]
         if unknown:

@@ -61,25 +61,30 @@ class GeneratorTests(unittest.TestCase):
 
     def test_only_exposed_commands_are_emitted(self):
         manifest = load_manifest()
-        entry(manifest, "gaming")["expose"] = False
+        entry(manifest, "neutral_50")["expose"] = False
         text = render_esphome(manifest, self.reports)
         ids = re.findall(r"id: (cmd_\w+)", text)
-        self.assertNotIn("cmd_gaming", ids)
-        self.assertEqual(len(ids), 12)
+        self.assertNotIn("cmd_neutral_50", ids)
+        self.assertEqual(len(ids), 11)
 
-    def test_all_13_buttons_emitted_in_remote_order(self):
+    def test_exposed_buttons_emitted_in_remote_order(self):
         text = render_esphome(load_manifest(), self.reports)
         names = re.findall(r'name: "([^"]+)"', text)
         self.assertEqual(
             names,
-            ["Night mode", "Power", "Color cooler", "Brightness up", "Color warmer", "Brightness down",
-             "Center sun", "Coffee cup", "Baby bottle", "Laptop", "Book", "Gaming", "Tachometer"],
+            ["Night mode", "Power", "Color warmer", "Brightness up", "Color cooler", "Brightness down",
+             "Cool 100%", "Warm 100%", "Warm 50%", "Cool 50%", "Neutral 100%", "Neutral 50%"],
         )
+
+    def test_timer_is_known_but_never_exposed(self):
+        timer = entry(load_manifest(), "timer")
+        self.assertEqual((timer["pattern"], timer["position"], timer["expose"]), ("7B500D03", 13, False))
+        self.assertNotIn("cmd_timer", render_esphome(load_manifest(), self.reports))
 
     def test_every_emitted_code_decodes_to_its_pattern(self):
         text = render_esphome(load_manifest(), self.reports)
         blocks = re.findall(r"# (\w+): ([0-9A-F]{8}) .*?code: \[([^\]]*)\]", text, flags=re.S)
-        self.assertEqual(len(blocks), 13)
+        self.assertEqual(len(blocks), 12)
         for cid, pattern, body in blocks:
             with self.subTest(command=cid):
                 code = [int(v) for v in body.split(",")]
@@ -88,22 +93,22 @@ class GeneratorTests(unittest.TestCase):
 
     def test_learned_code_uses_timing_source_timings(self):
         text = render_esphome(load_manifest(), self.reports)
-        block = text.split("# color_cooler:", 1)[1].split("  - platform", 2)[1]
+        block = text.split("# color_warmer:", 1)[1].split("  - platform", 2)[1]
         self.assertIn("learned in H4, timings from Pwr.sub", text)
         pwr = self.reports["Pwr.sub"]["timings"]
         self.assertIn(f"{pwr['sync_high']}, {pwr['gap']}", block)
 
     def test_learned_code_needs_timing_source_and_evidence(self):
         manifest = load_manifest()
-        del entry(manifest, "laptop")["timing_source"]
+        del entry(manifest, "cool_50")["timing_source"]
         with self.assertRaisesRegex(GeneratorError, "set timing_source"):
             render_esphome(manifest, self.reports)
         manifest = load_manifest()
-        entry(manifest, "laptop")["evidence"] = ""
+        entry(manifest, "cool_50")["evidence"] = ""
         with self.assertRaisesRegex(GeneratorError, "needs evidence"):
             render_esphome(manifest, self.reports)
         manifest = load_manifest()
-        entry(manifest, "laptop")["timing_source"] = "Nope.sub"
+        entry(manifest, "cool_50")["timing_source"] = "Nope.sub"
         with self.assertRaisesRegex(GeneratorError, "not found among captures"):
             render_esphome(manifest, self.reports)
 
@@ -122,7 +127,7 @@ class GeneratorTests(unittest.TestCase):
 
     def test_exposing_unknown_is_refused(self):
         manifest = load_manifest()
-        entry(manifest, "baby_bottle")["id"] = "unknown_0b"
+        entry(manifest, "warm_50")["id"] = "unknown_0b"
         with self.assertRaisesRegex(GeneratorError, "unknown"):
             render_esphome(manifest, self.reports)
 
@@ -140,13 +145,13 @@ class GeneratorTests(unittest.TestCase):
 
     def test_duplicate_position_is_refused(self):
         manifest = load_manifest()
-        entry(manifest, "laptop")["position"] = 2
+        entry(manifest, "cool_50")["position"] = 2
         with self.assertRaisesRegex(GeneratorError, "duplicate position 2"):
             render_esphome(manifest, self.reports)
 
     def test_one_pattern_maps_to_one_entry(self):
         manifest = load_manifest()
-        entry(manifest, "laptop")["pattern"] = "7B50020C"
+        entry(manifest, "cool_50")["pattern"] = "7B50020C"
         with self.assertRaisesRegex(GeneratorError, "already belongs to power"):
             render_esphome(manifest, self.reports)
 
@@ -155,8 +160,8 @@ class GeneratorTests(unittest.TestCase):
         self.assertEqual([c["position"] for c in buttons], list(range(1, 14)))
         self.assertEqual(
             [c["label"] for c in buttons],
-            ["Night mode", "Power", "Color cooler", "Brightness up", "Color warmer", "Brightness down",
-             "Center sun", "Coffee cup", "Baby bottle", "Laptop", "Book", "Gaming", "Tachometer"],
+            ["Night mode", "Power", "Color warmer", "Brightness up", "Color cooler", "Brightness down",
+             "Cool 100%", "Warm 100%", "Warm 50%", "Cool 50%", "Neutral 100%", "Neutral 50%", "Timer (10/40 min auto off)"],
         )
 
     def test_every_exposed_command_is_verified_and_logged(self):
@@ -238,7 +243,7 @@ class GeneratorCliTests(unittest.TestCase):
 
     def test_refusal_exits_non_zero(self):
         manifest = load_manifest()
-        entry(manifest, "baby_bottle")["id"] = "unknown_0b"
+        entry(manifest, "warm_50")["id"] = "unknown_0b"
         with tempfile.TemporaryDirectory() as tmp:
             bad = Path(tmp) / "commands.json"
             bad.write_text(json.dumps(manifest), encoding="utf-8")
