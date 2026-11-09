@@ -190,6 +190,21 @@ def _validate_command(cmd: dict, reports: dict[str, dict]) -> int | None:
         raise GeneratorError(f"{cid}: pattern {cmd['pattern']!r} is not hex") from None
     if not checksum_ok(value):
         raise GeneratorError(f"{cid}: pattern {cmd['pattern']} fails checksum")
+    if cmd["source"] is None:
+        # Code learned on the board's receiver (H4), with no Flipper capture of
+        # its own. Every button shares one timing, so the waveform borrows the
+        # measured timings of another capture, named in timing_source.
+        timing_source = cmd.get("timing_source")
+        if timing_source is None:
+            raise GeneratorError(f"{cid}: pattern {cmd['pattern']} has no source capture; set timing_source")
+        if timing_source not in reports:
+            raise GeneratorError(f"{cid}: timing_source {timing_source} not found among captures")
+        if not cmd.get("evidence"):
+            raise GeneratorError(f"{cid}: a code without a capture needs evidence (the H4 session that learned it)")
+        _check_unknown_and_verified(cmd)
+        return value
+    if cmd.get("timing_source") is not None:
+        raise GeneratorError(f"{cid}: timing_source is only for codes without a source capture")
     report = reports.get(cmd["source"])
     if report is None:
         raise GeneratorError(f"{cid}: source {cmd['source']} not found among captures")
@@ -203,11 +218,16 @@ def _validate_command(cmd: dict, reports: dict[str, dict]) -> int | None:
             f"{cid}: {cmd['source']} has fewer than {MIN_CLEAN_FRAMES} clean frames "
             f"of {cmd['pattern']} ({report['dominant_count']})"
         )
-    if cmd["expose"] and cmd["id"].startswith("unknown"):
+    _check_unknown_and_verified(cmd)
+    return value
+
+
+def _check_unknown_and_verified(cmd: dict) -> None:
+    cid = cmd["id"]
+    if cmd["expose"] and cid.startswith("unknown"):
         raise GeneratorError(f"{cid}: unknown commands must never be exposed")
     if cmd["expose"] and cmd["verified"] is not True:
         raise GeneratorError(f"{cid}: only verified commands may be exposed (set verified after a hardware pass)")
-    return value
 
 
 def render_esphome(manifest: dict, reports: list[dict] | dict[str, dict]) -> str:
@@ -244,7 +264,8 @@ def render_esphome(manifest: dict, reports: list[dict] | dict[str, dict]) -> str
         if not cmd["expose"]:
             continue
 
-        timings = reports[cmd["source"]]["timings"]
+        timing_file = cmd["source"] or cmd["timing_source"]
+        timings = reports[timing_file]["timings"]
         code = build_raw_code(value, timings)
         times = cmd.get("repeat", "${tx_repeat}")
         wait_ms = cmd.get("wait_time_ms", DEFAULT_WAIT_TIME_MS)
@@ -256,8 +277,9 @@ def render_esphome(manifest: dict, reports: list[dict] | dict[str, dict]) -> str
         buttons.append(
             "\n".join(
                 [
-                    f"  # {cmd['id']}: {cmd['pattern']} from {cmd['source']}"
-                    f" (verified: {str(cmd['verified']).lower()})",
+                    f"  # {cmd['id']}: {cmd['pattern']} "
+                    + (f"from {cmd['source']}" if cmd["source"] else f"learned in H4, timings from {cmd['timing_source']}")
+                    + f" (verified: {str(cmd['verified']).lower()})",
                     f"  # median timings (us): {timing_note}",
                     "  - platform: template",
                     f"    id: cmd_{cmd['id']}",

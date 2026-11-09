@@ -1,19 +1,17 @@
 {
   "commands": [
-    {"id": "night_mode",      "position": 1,    "label": "Night mode",      "source": "Nght.sub",  "pattern": "7B50010F", "icon": "mdi:weather-night",     "expose": false, "verified": false},
-    {"id": "power",           "position": 2,    "label": "Power",           "source": "Pwr.sub",   "pattern": "7B50020C", "icon": "mdi:power",             "expose": true,  "verified": true},
-    {"id": "color_cooler",    "position": 3,    "label": "Color cooler",    "source": "Cool.sub",  "pattern": "7B500608", "icon": "mdi:snowflake",         "expose": false, "verified": false},
-    {"id": "brightness_up",   "position": 4,    "label": "Brightness up",   "source": "Bup.sub",   "pattern": "7B50030D", "icon": "mdi:brightness-7",      "expose": false, "verified": false},
-    {"id": "color_warmer",    "position": 5,    "label": "Color warmer",    "source": null,        "pattern": null,       "icon": "mdi:fire",              "expose": false, "verified": false},
-    {"id": "brightness_down", "position": 6,    "label": "Brightness down", "source": "Bdwn.sub",  "pattern": "7B500709", "icon": "mdi:brightness-5",      "expose": false, "verified": false},
-    {"id": "center_sun",      "position": 7,    "label": "Center sun",      "source": "Middl.sub", "pattern": "7B50050B", "icon": "mdi:white-balance-sunny","expose": false, "verified": false},
-    {"id": "coffee_cup",      "position": 8,    "label": "Coffee cup",      "source": null,        "pattern": null,       "icon": "mdi:coffee",            "expose": false, "verified": false},
-    {"id": "baby_bottle",     "position": 9,    "label": "Baby bottle",     "source": null,        "pattern": null,       "icon": "mdi:baby-bottle",       "expose": false, "verified": false},
-    {"id": "laptop",          "position": 10,   "label": "Laptop",          "source": null,        "pattern": null,       "icon": "mdi:laptop",            "expose": false, "verified": false},
-    {"id": "book",            "position": 11,   "label": "Book",            "source": "Read.sub",  "pattern": "7B500907", "icon": "mdi:book-open-variant", "expose": false, "verified": false},
-    {"id": "gaming",          "position": 12,   "label": "Gaming",          "source": null,        "pattern": null,       "icon": "mdi:gamepad-variant",   "expose": false, "verified": false},
-    {"id": "tachometer",      "position": 13,   "label": "Tachometer",      "source": null,        "pattern": null,       "icon": "mdi:speedometer",       "expose": false, "verified": false},
-    {"id": "leisure_capture", "position": null, "label": "Leisure capture (button not yet identified)", "source": "Lei.sub", "pattern": "7B500806", "icon": "mdi:sofa", "expose": false, "verified": false},
-    {"id": "unknown_0b",      "position": null, "label": "Unknown 0x0B",    "source": "SubGHz_2026-10-23_14,53,06.sub", "pattern": "7B500B05", "icon": "mdi:help", "expose": false, "verified": false}
+    {"id": "night_mode",      "position": 1,  "label": "Night mode",      "source": "Nght.sub",  "pattern": "7B50010F", "icon": "mdi:weather-night",      "expose": true, "verified": true},
+    {"id": "power",           "position": 2,  "label": "Power",           "source": "Pwr.sub",   "pattern": "7B50020C", "icon": "mdi:power",              "expose": true, "verified": true},
+    {"id": "color_cooler",    "position": 3,  "label": "Color cooler",    "source": null,        "pattern": "7B50040A", "timing_source": "Pwr.sub", "evidence": "H4 2026-11-09, captures/sessions/h4-20261109-174852.log step 3", "icon": "mdi:snowflake", "expose": true, "verified": true},
+    {"id": "brightness_up",   "position": 4,  "label": "Brightness up",   "source": "Bup.sub",   "pattern": "7B50030D", "icon": "mdi:brightness-7",       "expose": true, "verified": true},
+    {"id": "color_warmer",    "position": 5,  "label": "Color warmer",    "source": "Cool.sub",  "pattern": "7B500608", "icon": "mdi:fire",               "expose": true, "verified": true},
+    {"id": "brightness_down", "position": 6,  "label": "Brightness down", "source": "Bdwn.sub",  "pattern": "7B500709", "icon": "mdi:brightness-5",       "expose": true, "verified": true},
+    {"id": "center_sun",      "position": 7,  "label": "Center sun",      "source": "Middl.sub", "pattern": "7B50050B", "icon": "mdi:white-balance-sunny", "expose": true, "verified": true},
+    {"id": "coffee_cup",      "position": 8,  "label": "Coffee cup",      "source": "Lei.sub",   "pattern": "7B500806", "icon": "mdi:coffee",             "expose": true, "verified": true},
+    {"id": "baby_bottle",     "position": 9,  "label": "Baby bottle",     "source": "SubGHz_2026-10-23_14,53,06.sub", "pattern": "7B500B05", "icon": "mdi:baby-bottle", "expose": true, "verified": true},
+    {"id": "laptop",          "position": 10, "label": "Laptop",          "source": null,        "pattern": "7B500A04", "timing_source": "Pwr.sub", "evidence": "H4 2026-11-09, captures/sessions/h4-20261109-174852.log step 10", "icon": "mdi:laptop", "expose": true, "verified": true},
+    {"id": "book",            "position": 11, "label": "Book",            "source": "Read.sub",  "pattern": "7B500907", "icon": "mdi:book-open-variant",  "expose": true, "verified": true},
+    {"id": "gaming",          "position": 12, "label": "Gaming",          "source": null,        "pattern": "7B500C02", "timing_source": "Pwr.sub", "evidence": "H4 2026-11-09, captures/sessions/h4-20261109-174852.log step 12", "icon": "mdi:gamepad-variant", "expose": true, "verified": true},
+    {"id": "tachometer",      "position": 13, "label": "Tachometer",      "source": null,        "pattern": "7B500D03", "timing_source": "Pwr.sub", "evidence": "H4 2026-11-09, captures/sessions/h4-20261109-174852.log step 13", "icon": "mdi:speedometer", "expose": true, "verified": true}
   ]
 }

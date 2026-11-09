@@ -2,6 +2,25 @@
 # One decoded frame per command, rebuilt from measured median timings.
 # Regenerate: python3 -m tools.analyze_captures captures/original --emit-esphome esphome/lamp-commands.generated.yaml
 button:
+  # night_mode: 7B50010F from Nght.sub (verified: true)
+  # median timings (us): short_high 255, long_high 743, short_low 238, long_low 721, sync_high 253, gap -7575
+  - platform: template
+    id: cmd_night_mode
+    name: "Night mode"
+    icon: "mdi:weather-night"
+    on_press:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx
+          code: [
+              255, -721, 743, -238, 743, -238, 743, -238, 743, -238, 255, -721, 743, -238, 743, -238,
+              255, -721, 743, -238, 255, -721, 743, -238, 255, -721, 255, -721, 255, -721, 255, -721,
+              255, -721, 255, -721, 255, -721, 255, -721, 255, -721, 255, -721, 255, -721, 743, -238,
+              255, -721, 255, -721, 255, -721, 255, -721, 743, -238, 743, -238, 743, -238, 743, -238,
+              253, -7575
+            ]
+          repeat:
+            times: ${tx_repeat}
+            wait_time: 0ms
   # power: 7B50020C from Pwr.sub (verified: true)
   # median timings (us): short_high 249, long_high 737, short_low 240, long_low 726, sync_high 249, gap -7577
   - platform: template
@@ -16,6 +35,215 @@ button:
               249, -726, 737, -240, 249, -726, 737, -240, 249, -726, 249, -726, 249, -726, 249, -726,
               249, -726, 249, -726, 249, -726, 249, -726, 249, -726, 249, -726, 737, -240, 249, -726,
               249, -726, 249, -726, 249, -726, 249, -726, 737, -240, 737, -240, 249, -726, 249, -726,
+              249, -7577
+            ]
+          repeat:
+            times: ${tx_repeat}
+            wait_time: 0ms
+  # color_cooler: 7B50040A learned in H4, timings from Pwr.sub (verified: true)
+  # median timings (us): short_high 249, long_high 737, short_low 240, long_low 726, sync_high 249, gap -7577
+  - platform: template
+    id: cmd_color_cooler
+    name: "Color cooler"
+    icon: "mdi:snowflake"
+    on_press:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx
+          code: [
+              249, -726, 737, -240, 737, -240, 737, -240, 737, -240, 249, -726, 737, -240, 737, -240,
+              249, -726, 737, -240, 249, -726, 737, -240, 249, -726, 249, -726, 249, -726, 249, -726,
+              249, -726, 249, -726, 249, -726, 249, -726, 249, -726, 737, -240, 249, -726, 249, -726,
+              249, -726, 249, -726, 249, -726, 249, -726, 737, -240, 249, -726, 737, -240, 249, -726,
+              249, -7577
+            ]
+          repeat:
+            times: ${tx_repeat}
+            wait_time: 0ms
+  # brightness_up: 7B50030D from Bup.sub (verified: true)
+  # median timings (us): short_high 257, long_high 745, short_low 232, long_low 706, sync_high 255, gap -7572
+  - platform: template
+    id: cmd_brightness_up
+    name: "Brightness up"
+    icon: "mdi:brightness-7"
+    on_press:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx
+          code: [
+              257, -706, 745, -232, 745, -232, 745, -232, 745, -232, 257, -706, 745, -232, 745, -232,
+              257, -706, 745, -232, 257, -706, 745, -232, 257, -706, 257, -706, 257, -706, 257, -706,
+              257, -706, 257, -706, 257, -706, 257, -706, 257, -706, 257, -706, 745, -232, 745, -232,
+              257, -706, 257, -706, 257, -706, 257, -706, 745, -232, 745, -232, 257, -706, 745, -232,
+              255, -7572
+            ]
+          repeat:
+            times: ${tx_repeat}
+            wait_time: 0ms
+  # color_warmer: 7B500608 from Cool.sub (verified: true)
+  # median timings (us): short_high 253, long_high 737, short_low 240, long_low 725, sync_high 247, gap -7872
+  - platform: template
+    id: cmd_color_warmer
+    name: "Color warmer"
+    icon: "mdi:fire"
+    on_press:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx
+          code: [
+              253, -725, 737, -240, 737, -240, 737, -240, 737, -240, 253, -725, 737, -240, 737, -240,
+              253, -725, 737, -240, 253, -725, 737, -240, 253, -725, 253, -725, 253, -725, 253, -725,
+              253, -725, 253, -725, 253, -725, 253, -725, 253, -725, 737, -240, 737, -240, 253, -725,
+              253, -725, 253, -725, 253, -725, 253, -725, 737, -240, 253, -725, 253, -725, 253, -725,
+              247, -7872
+            ]
+          repeat:
+            times: ${tx_repeat}
+            wait_time: 0ms
+  # brightness_down: 7B500709 from Bdwn.sub (verified: true)
+  # median timings (us): short_high 251, long_high 737, short_low 240, long_low 725, sync_high 255, gap -8474
+  - platform: template
+    id: cmd_brightness_down
+    name: "Brightness down"
+    icon: "mdi:brightness-5"
+    on_press:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx
+          code: [
+              251, -725, 737, -240, 737, -240, 737, -240, 737, -240, 251, -725, 737, -240, 737, -240,
+              251, -725, 737, -240, 251, -725, 737, -240, 251, -725, 251, -725, 251, -725, 251, -725,
+              251, -725, 251, -725, 251, -725, 251, -725, 251, -725, 737, -240, 737, -240, 737, -240,
+              251, -725, 251, -725, 251, -725, 251, -725, 737, -240, 251, -725, 251, -725, 737, -240,
+              255, -8474
+            ]
+          repeat:
+            times: ${tx_repeat}
+            wait_time: 0ms
+  # center_sun: 7B50050B from Middl.sub (verified: true)
+  # median timings (us): short_high 251, long_high 737, short_low 238, long_low 726, sync_high 251, gap -7876
+  - platform: template
+    id: cmd_center_sun
+    name: "Center sun"
+    icon: "mdi:white-balance-sunny"
+    on_press:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx
+          code: [
+              251, -726, 737, -238, 737, -238, 737, -238, 737, -238, 251, -726, 737, -238, 737, -238,
+              251, -726, 737, -238, 251, -726, 737, -238, 251, -726, 251, -726, 251, -726, 251, -726,
+              251, -726, 251, -726, 251, -726, 251, -726, 251, -726, 737, -238, 251, -726, 737, -238,
+              251, -726, 251, -726, 251, -726, 251, -726, 737, -238, 251, -726, 737, -238, 737, -238,
+              251, -7876
+            ]
+          repeat:
+            times: ${tx_repeat}
+            wait_time: 0ms
+  # coffee_cup: 7B500806 from Lei.sub (verified: true)
+  # median timings (us): short_high 249, long_high 737, short_low 240, long_low 726, sync_high 248, gap -8474
+  - platform: template
+    id: cmd_coffee_cup
+    name: "Coffee cup"
+    icon: "mdi:coffee"
+    on_press:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx
+          code: [
+              249, -726, 737, -240, 737, -240, 737, -240, 737, -240, 249, -726, 737, -240, 737, -240,
+              249, -726, 737, -240, 249, -726, 737, -240, 249, -726, 249, -726, 249, -726, 249, -726,
+              249, -726, 249, -726, 249, -726, 249, -726, 737, -240, 249, -726, 249, -726, 249, -726,
+              249, -726, 249, -726, 249, -726, 249, -726, 249, -726, 737, -240, 737, -240, 249, -726,
+              248, -8474
+            ]
+          repeat:
+            times: ${tx_repeat}
+            wait_time: 0ms
+  # baby_bottle: 7B500B05 from SubGHz_2026-10-23_14,53,06.sub (verified: true)
+  # median timings (us): short_high 249, long_high 737, short_low 240, long_low 726, sync_high 253, gap -8174
+  - platform: template
+    id: cmd_baby_bottle
+    name: "Baby bottle"
+    icon: "mdi:baby-bottle"
+    on_press:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx
+          code: [
+              249, -726, 737, -240, 737, -240, 737, -240, 737, -240, 249, -726, 737, -240, 737, -240,
+              249, -726, 737, -240, 249, -726, 737, -240, 249, -726, 249, -726, 249, -726, 249, -726,
+              249, -726, 249, -726, 249, -726, 249, -726, 737, -240, 249, -726, 737, -240, 737, -240,
+              249, -726, 249, -726, 249, -726, 249, -726, 249, -726, 737, -240, 249, -726, 737, -240,
+              253, -8174
+            ]
+          repeat:
+            times: ${tx_repeat}
+            wait_time: 0ms
+  # laptop: 7B500A04 learned in H4, timings from Pwr.sub (verified: true)
+  # median timings (us): short_high 249, long_high 737, short_low 240, long_low 726, sync_high 249, gap -7577
+  - platform: template
+    id: cmd_laptop
+    name: "Laptop"
+    icon: "mdi:laptop"
+    on_press:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx
+          code: [
+              249, -726, 737, -240, 737, -240, 737, -240, 737, -240, 249, -726, 737, -240, 737, -240,
+              249, -726, 737, -240, 249, -726, 737, -240, 249, -726, 249, -726, 249, -726, 249, -726,
+              249, -726, 249, -726, 249, -726, 249, -726, 737, -240, 249, -726, 737, -240, 249, -726,
+              249, -726, 249, -726, 249, -726, 249, -726, 249, -726, 737, -240, 249, -726, 249, -726,
+              249, -7577
+            ]
+          repeat:
+            times: ${tx_repeat}
+            wait_time: 0ms
+  # book: 7B500907 from Read.sub (verified: true)
+  # median timings (us): short_high 247, long_high 735, short_low 240, long_low 726, sync_high 251, gap -8480
+  - platform: template
+    id: cmd_book
+    name: "Book"
+    icon: "mdi:book-open-variant"
+    on_press:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx
+          code: [
+              247, -726, 735, -240, 735, -240, 735, -240, 735, -240, 247, -726, 735, -240, 735, -240,
+              247, -726, 735, -240, 247, -726, 735, -240, 247, -726, 247, -726, 247, -726, 247, -726,
+              247, -726, 247, -726, 247, -726, 247, -726, 735, -240, 247, -726, 247, -726, 735, -240,
+              247, -726, 247, -726, 247, -726, 247, -726, 247, -726, 735, -240, 735, -240, 735, -240,
+              251, -8480
+            ]
+          repeat:
+            times: ${tx_repeat}
+            wait_time: 0ms
+  # gaming: 7B500C02 learned in H4, timings from Pwr.sub (verified: true)
+  # median timings (us): short_high 249, long_high 737, short_low 240, long_low 726, sync_high 249, gap -7577
+  - platform: template
+    id: cmd_gaming
+    name: "Gaming"
+    icon: "mdi:gamepad-variant"
+    on_press:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx
+          code: [
+              249, -726, 737, -240, 737, -240, 737, -240, 737, -240, 249, -726, 737, -240, 737, -240,
+              249, -726, 737, -240, 249, -726, 737, -240, 249, -726, 249, -726, 249, -726, 249, -726,
+              249, -726, 249, -726, 249, -726, 249, -726, 737, -240, 737, -240, 249, -726, 249, -726,
+              249, -726, 249, -726, 249, -726, 249, -726, 249, -726, 249, -726, 737, -240, 249, -726,
+              249, -7577
+            ]
+          repeat:
+            times: ${tx_repeat}
+            wait_time: 0ms
+  # tachometer: 7B500D03 learned in H4, timings from Pwr.sub (verified: true)
+  # median timings (us): short_high 249, long_high 737, short_low 240, long_low 726, sync_high 249, gap -7577
+  - platform: template
+    id: cmd_tachometer
+    name: "Tachometer"
+    icon: "mdi:speedometer"
+    on_press:
+      - remote_transmitter.transmit_raw:
+          transmitter_id: tx
+          code: [
+              249, -726, 737, -240, 737, -240, 737, -240, 737, -240, 249, -726, 737, -240, 737, -240,
+              249, -726, 737, -240, 249, -726, 737, -240, 249, -726, 249, -726, 249, -726, 249, -726,
+              249, -726, 249, -726, 249, -726, 249, -726, 737, -240, 737, -240, 249, -726, 737, -240,
+              249, -726, 249, -726, 249, -726, 249, -726, 249, -726, 249, -726, 737, -240, 737, -240,
               249, -7577
             ]
           repeat:
