@@ -43,11 +43,11 @@ class EsphomeStaticSafetyTests(unittest.TestCase):
             with self.subTest(file=path.name, key="restore_mode"):
                 self.assertNotIn("restore_mode", body)
 
-    def test_spi_pins_match_as_built_wiring(self):
-        # As built, CS and MOSI are crossed relative to the original plan
-        # (see "As built" in CC1101-ESP32-S3-wiring.md).
+    def test_spi_pins_match_wiring_plan(self):
+        # The jumpers are fixed to match the plan, not the firmware to match
+        # the jumpers (see "As built" in CC1101-ESP32-S3-wiring.md).
         body = strip_comments(MAIN.read_text(encoding="utf-8"))
-        for key, gpio in [("clk_pin", 12), ("mosi_pin", 10), ("miso_pin", 13), ("cs_pin", 11)]:
+        for key, gpio in [("clk_pin", 12), ("mosi_pin", 11), ("miso_pin", 13), ("cs_pin", 10)]:
             with self.subTest(key=key):
                 self.assertRegex(body, rf"(?m)^\s+{key}: GPIO{gpio}$", msg=f"{key} should be GPIO{gpio}")
 

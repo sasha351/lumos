@@ -50,22 +50,22 @@ These GPIO assignments are the selected wiring plan. Configure firmware to match
 
 ### As built (November 9, 2026)
 
-The connections use DuPont jumpers, not solder. The radio has a right-angle 2×4 header on its underside. Its edge-row pins (1, 3, 5, 7) are in the connector layer nearer the board. Its inner-row pins (2, 4, 6, 8) are in the outer layer. This mapping comes from photos taken after H3 failed:
+The connections use DuPont jumpers, not solder. The radio has a right-angle 2×4 header on its underside. Its edge-row pins (1, 3, 5, 7) are in the connector layer nearer the board. Its inner-row pins (2, 4, 6, 8) are in the outer layer.
 
-| CC1101 pin | Wire colour | ESP32-S3 label | Matches plan? |
-| --- | --- | --- | --- |
-| 1 GND | white | GND (last pin) | yes |
-| 2 VCC | red | 3V3 | yes |
-| 3 GDO0 | yellow | 4 or 5 | not yet known (two yellow wires) |
-| 4 CSN | gray | **11** | **no**: plan says 10 |
-| 5 SCK | green | 12 | yes |
-| 6 MOSI | purple | **10** | **no**: plan says 11 |
-| 7 MISO | blue | 13 | yes |
-| 8 GDO2 | yellow | 5 or 4 | not yet known (two yellow wires) |
+Photos taken after H3 failed showed the purple and gray jumpers crossed: GPIO10 went to pin 6 (MOSI) and GPIO11 to pin 4 (CSN). The fix is to swap the two wires at the ESP end. The firmware keeps the planned pins, so after the swap:
 
-`esphome/lamp-controller.yaml` follows the as-built wires: `cs_pin: GPIO11` and `mosi_pin: GPIO10`. If the purple and gray jumpers are moved back to the plan, swap those two values as well.
+| CC1101 pin | Wire colour | ESP32-S3 label |
+| --- | --- | --- |
+| 1 GND | white | GND (last pin) |
+| 2 VCC | red | 3V3 |
+| 3 GDO0 | yellow | 4 or 5 (two yellow wires; H4 will confirm) |
+| 4 CSN | gray | 10 |
+| 5 SCK | green | 12 |
+| 6 MOSI | purple | 11 |
+| 7 MISO | blue | 13 |
+| 8 GDO2 | yellow | 5 or 4 |
 
-Because both data wires are yellow, the photos don't show whether GPIO4 reaches GDO0. H4 will confirm it: if the receiver sees nothing, swap GPIO4 and GPIO5 in the firmware.
+A re-run of H3 confirms the fix if the CC1101 Chip ID reads `0x0014` (clones `0x0004` or `0x0007`). Both data wires are yellow, so if the receiver sees nothing in H4, swap them at one end.
 
 ### ESP32-S3 physical pinout
 
