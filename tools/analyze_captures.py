@@ -189,6 +189,8 @@ def _validate_command(cmd: dict, reports: dict[str, dict]) -> int:
         )
     if cmd["expose"] and cmd["id"].startswith("unknown"):
         raise GeneratorError(f"{cid}: unknown commands must never be exposed")
+    if cmd["expose"] and cmd["verified"] is not True:
+        raise GeneratorError(f"{cid}: only verified commands may be exposed (set verified after a hardware pass)")
     return value
 
 

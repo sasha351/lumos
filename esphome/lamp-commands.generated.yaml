@@ -2,7 +2,7 @@
 # One decoded frame per command, rebuilt from measured median timings.
 # Regenerate: python3 -m tools.analyze_captures captures/original --emit-esphome esphome/lamp-commands.generated.yaml
 button:
-  # power: 7B50020C from Pwr.sub (verified: false)
+  # power: 7B50020C from Pwr.sub (verified: true)
   # median timings (us): short_high 249, long_high 737, short_low 240, long_low 726, sync_high 249, gap -7577
   - platform: template
     id: cmd_power

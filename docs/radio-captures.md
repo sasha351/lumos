@@ -21,7 +21,7 @@ The observations below are preserved from prior analysis, not a new decoding run
 | SubGHz_2026-10-23_14,52,52.sub | Same bytes as Lei.sub | Duplicate retained |
 | SubGHz_2026-10-23_14,48,37.sub | Same bytes as Pwr.sub | Duplicate retained |
 
-Button meanings are inferred from filenames and require confirmation before final UI labels. Mixed recordings must not be replayed wholesale. Keep the unknown command unexposed. Power may toggle rather than set a discrete state, and brightness commands do not establish absolute brightness or provide lamp-state feedback.
+Power (`7B50020C`) is confirmed on hardware: transmitted from Home Assistant, it toggles the lamp (H5 in the [hardware test log](hardware-test-log.md)). The other button meanings are inferred from filenames and require confirmation before final UI labels. Mixed recordings must not be replayed wholesale. Keep the unknown command unexposed. Power may toggle rather than set a discrete state, and brightness commands do not establish absolute brightness or provide lamp-state feedback.
 
 ## Reproduce
 

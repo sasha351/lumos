@@ -75,6 +75,25 @@ class GeneratorTests(unittest.TestCase):
         with self.assertRaisesRegex(GeneratorError, "unknown"):
             render_esphome(manifest, self.reports)
 
+    def test_exposing_unverified_is_refused(self):
+        manifest = load_manifest()
+        entry(manifest, "bright_up").update({"expose": True, "verified": False})
+        with self.assertRaisesRegex(GeneratorError, "only verified"):
+            render_esphome(manifest, self.reports)
+
+    def test_every_exposed_command_is_verified_and_logged(self):
+        log = (REPO / "docs" / "hardware-test-log.md").read_text(encoding="utf-8")
+        rows = [line for line in log.splitlines() if line.startswith("| H5")]
+        for cmd in load_manifest()["commands"]:
+            if not cmd["expose"]:
+                continue
+            with self.subTest(command=cmd["id"]):
+                self.assertIs(cmd["verified"], True)
+                self.assertTrue(
+                    any(cmd["pattern"] in row and "pass" in row for row in rows),
+                    f"no H5 row with 'pass' mentions {cmd['pattern']}",
+                )
+
     def test_non_dominant_pattern_is_refused(self):
         manifest = load_manifest()
         entry(manifest, "power").update({"source": "Read.sub", "pattern": "7B50050B"})

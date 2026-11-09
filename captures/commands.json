@@ -1,6 +1,6 @@
 {
   "commands": [
-    {"id": "power",       "source": "Pwr.sub",   "pattern": "7B50020C", "label": "Power",            "icon": "mdi:power",            "expose": true,  "verified": false},
+    {"id": "power",       "source": "Pwr.sub",   "pattern": "7B50020C", "label": "Power",            "icon": "mdi:power",            "expose": true,  "verified": true},
     {"id": "bright_up",   "source": "Bup.sub",   "pattern": "7B50030D", "label": "Brightness up",    "icon": "mdi:brightness-7",     "expose": false, "verified": false},
     {"id": "bright_down", "source": "Bdwn.sub",  "pattern": "7B500709", "label": "Brightness down",  "icon": "mdi:brightness-5",     "expose": false, "verified": false},
     {"id": "cool",        "source": "Cool.sub",  "pattern": "7B500608", "label": "Cool",             "icon": "mdi:snowflake",        "expose": false, "verified": false},

@@ -4,7 +4,7 @@ Control an existing 433.92 MHz lamp from Home Assistant with a DORHEA ESP32-S3 N
 
 ## Status
 
-Evidence and planning only. The user reports that the boards are soldered according to the wiring diagram, connected to the laptop, and that Flipper replay controls the lamp. Board identity (ESP32-S3, 16 MB flash, 8 MB octal PSRAM) and a verified factory-firmware backup are recorded in the [hardware test log](docs/hardware-test-log.md). Physical wiring and radio operation have not been verified. A capture analyzer (`tools/`), a command generator, and an ESPHome configuration (`esphome/lamp-controller.yaml`) now exist and pass `python3 -m unittest discover -s tests`, but the firmware has not been flashed and no Home Assistant integration has been configured. Only Power is exposed, for the first transmit test.
+The ESPHome firmware runs on the board and is added to Home Assistant. The CC1101 answers over SPI (Chip ID `0x0014`), and frames received from the original remote decode cleanly. Pressing Power in Home Assistant toggles the lamp. Two pairs of jumpers were crossed and have been fixed; see the as-built table in the [wiring doc](CC1101-ESP32-S3-wiring.md). Power is the only exposed command, and it is verified. The other buttons stay hidden until each is confirmed on hardware. Results are in the [hardware test log](docs/hardware-test-log.md). The capture analyzer, command generator and configuration pass `python3 -m unittest discover -s tests`.
 
 The active project is `/Users/sasha/Documents/lumos`. Its existing Git remote is `https://github.com/sasha351/lumos.git`. Both old project paths have been cleared after preserving the source files. The remote was preserved; the user subsequently authorized committing and pushing the migration to `main`.
 
