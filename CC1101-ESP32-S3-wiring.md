@@ -48,6 +48,25 @@ These GPIO assignments are the selected wiring plan. Configure firmware to match
 
 **ESP numbers are GPIO numbers, not positions counted along the header.** The radio numbers identify its module connector pins, not pins on the CC1101 chip itself.
 
+### As built (November 9, 2026)
+
+The connections use DuPont jumpers, not solder. The radio has a right-angle 2×4 header on its underside. Its edge-row pins (1, 3, 5, 7) are in the connector layer nearer the board. Its inner-row pins (2, 4, 6, 8) are in the outer layer. This mapping comes from photos taken after H3 failed:
+
+| CC1101 pin | Wire colour | ESP32-S3 label | Matches plan? |
+| --- | --- | --- | --- |
+| 1 GND | white | GND (last pin) | yes |
+| 2 VCC | red | 3V3 | yes |
+| 3 GDO0 | yellow | 4 or 5 | not yet known (two yellow wires) |
+| 4 CSN | gray | **11** | **no**: plan says 10 |
+| 5 SCK | green | 12 | yes |
+| 6 MOSI | purple | **10** | **no**: plan says 11 |
+| 7 MISO | blue | 13 | yes |
+| 8 GDO2 | yellow | 5 or 4 | not yet known (two yellow wires) |
+
+`esphome/lamp-controller.yaml` follows the as-built wires: `cs_pin: GPIO11` and `mosi_pin: GPIO10`. If the purple and gray jumpers are moved back to the plan, swap those two values as well.
+
+Because both data wires are yellow, the photos don't show whether GPIO4 reaches GDO0. H4 will confirm it: if the receiver sees nothing, swap GPIO4 and GPIO5 in the firmware.
+
 ### ESP32-S3 physical pinout
 
 View the component side with the Wi-Fi antenna at the top and both USB ports at the bottom. All eight wires use the left header. The arrows show electrical connections, not cable routing.

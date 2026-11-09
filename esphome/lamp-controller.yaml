@@ -50,14 +50,18 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
 
+# As built, the CS and MOSI jumpers are crossed relative to the wiring plan:
+# GPIO10 (purple) goes to CC1101 pin 6 MOSI and GPIO11 (gray) to pin 4 CSN
+# (photo inspection after H3 read Chip ID 0xF77F). The firmware follows the
+# wires. If the jumpers are ever moved back to the plan, swap these two pins.
 spi:
   clk_pin: GPIO12
-  mosi_pin: GPIO11
+  mosi_pin: GPIO10
   miso_pin: GPIO13
 
 cc1101:
   id: radio
-  cs_pin: GPIO10
+  cs_pin: GPIO11
   frequency: 433.92MHz
   modulation_type: ASK/OOK
   # The component enters RX at boot; it never transmits on its own.
