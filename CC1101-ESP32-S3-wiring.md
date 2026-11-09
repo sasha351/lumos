@@ -59,14 +59,14 @@ Photos taken after H3 failed showed the purple and gray jumpers crossed: GPIO10 
 | --- | --- | --- |
 | 1 GND | white | GND (last pin) |
 | 2 VCC | red | 3V3 |
-| 3 GDO0 | yellow | 4 or 5 (two yellow wires; H4 will confirm) |
+| 3 GDO0 | yellow | 4 |
 | 4 CSN | gray | 10 |
 | 5 SCK | green | 12 |
 | 6 MOSI | purple | 11 |
 | 7 MISO | blue | 13 |
-| 8 GDO2 | yellow | 5 or 4 |
+| 8 GDO2 | yellow | 5 |
 
-The swap is confirmed: after it, the H3 re-run read CC1101 Chip ID `0x0014`. Both data wires are yellow, so if the receiver sees nothing in H4, swap them at one end.
+The swap is confirmed: after it, the H3 re-run read CC1101 Chip ID `0x0014`. The two yellow data wires were also found crossed after H4: radio pin 3 (GDO0) reached ESP 5. Receiving still worked, because ESPHome outputs received data on both GDO0 and GDO2. Transmitting would not, because only GDO0 takes transmit data. The fix is to turn the 2-pin housing on ESP pins 4–5 end-for-end. The table shows the wiring after that fix.
 
 ### ESP32-S3 physical pinout
 
