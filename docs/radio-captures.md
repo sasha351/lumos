@@ -22,3 +22,19 @@ The observations below are preserved from prior analysis, not a new decoding run
 | SubGHz_2026-10-23_14,48,37.sub | Same bytes as Pwr.sub | Duplicate retained |
 
 Button meanings are inferred from filenames and require confirmation before final UI labels. Mixed recordings must not be replayed wholesale. Keep the unknown command unexposed. Power may toggle rather than set a discrete state, and brightness commands do not establish absolute brightness or provide lamp-state feedback.
+
+## Reproduce
+
+Run the analyzer from the repository root. It uses only the Python 3.11+ standard library:
+
+```bash
+python3 -m tools.analyze_captures captures/original
+```
+
+Add `--json` for machine-readable output. For each file the report lists the header metadata, clean and rejected frame counts with a reason histogram, every distinct clean pattern, the dominant pattern, a `mixed` flag, byte-identical duplicates by SHA-256, and median timings of the dominant pattern in microseconds. `tests/test_capture_golden.py` checks the report against the table above and the checksums in [migration.md](migration.md):
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
+The analyzer agrees with every pattern in the table above. Its dominant counts are one higher for `Pwr.sub` (27), `Bup.sub` (22) and `SubGHz_2026-10-23_14,53,23.sub` (23), and for the byte-identical `SubGHz_2026-10-23_14,48,37.sub` (27). In each of these files the last frame is complete but the recording ends without a gap after it. The analyzer accepts such a frame when it decodes cleanly; the earlier analysis evidently required a trailing gap. The table keeps the earlier counts, and the tests accept either.
