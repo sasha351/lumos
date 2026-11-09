@@ -32,6 +32,11 @@ logger:
   # H1 found native USB-Serial/JTAG on /dev/cu.usbmodem*. This is the ESP32-S3
   # default; it is set explicitly so boot logs are guaranteed on that port.
   hardware_uart: USB_SERIAL_JTAG
+  # Host-side setting for `esphome logs` over USB. Without it the CLI opens the
+  # port with DTR/RTS asserted, which the S3's USB-Serial/JTAG treats as a
+  # reset into download mode (observed in H3: rst:0x15, boot:0x3, "waiting for
+  # download"), so the firmware never runs while logs are open.
+  deassert_rts_dtr: true
 
 api:
   encryption:

@@ -56,6 +56,12 @@ class EsphomeStaticSafetyTests(unittest.TestCase):
         self.assertIn("open_drain: true", block)
         self.assertIn("eot_level: false", block)
 
+    def test_serial_logs_do_not_reset_into_download_mode(self):
+        body = strip_comments(MAIN.read_text(encoding="utf-8"))
+        logger = body.split("\nlogger:", 1)[1].split("\napi:", 1)[0]
+        self.assertIn("hardware_uart: USB_SERIAL_JTAG", logger)
+        self.assertIn("deassert_rts_dtr: true", logger)
+
     def test_radio_returns_to_rx_after_transmit(self):
         body = strip_comments(MAIN.read_text(encoding="utf-8"))
         complete = body.split("on_complete:", 1)[1]
