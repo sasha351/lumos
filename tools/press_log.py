@@ -152,7 +152,7 @@ class Session:
     def finish(self) -> None:
         self._flush_pending()
         for step, count in sorted(self.noise.items()):
-            where = f"step {step}" if step else "before step 1"
+            where = f"in step {step}" if step else "before step 1"
             self.out.write(f"# noise trains ignored {where}: {count}\n")
         self.out.flush()
 
