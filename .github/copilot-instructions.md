@@ -6,7 +6,8 @@ Lumos controls a 433.92 MHz lamp from Home Assistant using an ESP32-S3 and a CC1
 
 - **Never modify, rename, re-encode, or delete anything in `captures/original/` or `docs/archive/`.** These are preserved evidence. Their SHA-256 values are listed in `docs/migration.md`.
 - **Never commit secrets.** `esphome/secrets.yaml`, `.env*`, `backups/`, `*.bin`, `.esphome/`, and `build/` are git-ignored, and must stay that way. Commit only placeholders in `esphome/secrets.example.yaml`.
-- **Never transmit except on an explicit button press.** Don't add `on_boot`, `interval`, `on_connect`, or restore-mode transmissions, and don't add `switch`, `light`, or `number` entities that imply known lamp state.
+- **Never transmit except on an explicit button press.** Don't add `on_boot`, `interval`, `on_connect`, or restore-mode transmissions, and don't add `switch`, `light`, or `number` entities to the firmware that imply known lamp state.
+- **The Desk lamp light lives in Home Assistant, not in the firmware.** At the user's request (2026-11-10), `homeassistant/desk_lamp.yaml` adds `light.desk_lamp`, a light with an assumed state that presses the Lumos buttons. Only `script.desk_lamp_set` may press buttons, and only when the light is controlled. Power is pressed only when the assumed on/off state differs from the request. There are no automations, triggers or `initial:` values. `tests/test_ha_package_static.py` enforces these rules. See `docs/home-assistant-light.md`.
 - **Never expose a command that is not `verified: true` in `captures/commands.json`**, and never expose an `unknown_*` command.
 - **Never replay a whole recording.** Transmit codes must be generated from one decoded frame plus measured timings, by `tools/analyze_captures.py`.
 - **Don't hand-edit `esphome/lamp-commands.generated.yaml`.** Edit `captures/commands.json` and regenerate.

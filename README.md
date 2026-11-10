@@ -4,7 +4,7 @@ Control an existing 433.92 MHz lamp from Home Assistant with a DORHEA ESP32-S3 N
 
 ## Status
 
-The ESPHome firmware runs on the board and is added to Home Assistant. The CC1101 answers over SPI (Chip ID `0x0014`), and frames received from the original remote decode cleanly. Pressing Power in Home Assistant toggles the lamp. Two pairs of jumpers were crossed and have been fixed; see the as-built table in the [wiring doc](CC1101-ESP32-S3-wiring.md). All 13 remote buttons, listed in [Remote buttons](docs/radio-captures.md#remote-buttons), are confirmed from the original remote with the guided session `scripts/record_presses.py`. The mode buttons are named for their color and brightness (Warm, Neutral or Cool, at 100% or 50%). Twelve are exposed as Home Assistant buttons. The timer button is recorded but hidden, because it is never used. All 12 exposed buttons are confirmed transmitting from Home Assistant (H5). Results are in the [hardware test log](docs/hardware-test-log.md). The capture analyzer, command generator and configuration pass `python3 -m unittest discover -s tests`.
+The ESPHome firmware runs on the board and is added to Home Assistant. The CC1101 answers over SPI (Chip ID `0x0014`), and frames received from the original remote decode cleanly. Pressing Power in Home Assistant toggles the lamp. Two pairs of jumpers were crossed and have been fixed; see the as-built table in the [wiring doc](CC1101-ESP32-S3-wiring.md). All 13 remote buttons, listed in [Remote buttons](docs/radio-captures.md#remote-buttons), are confirmed from the original remote with the guided session `scripts/record_presses.py`. The mode buttons are named for their color and brightness (Warm, Neutral or Cool, at 100% or 50%). Twelve are exposed as Home Assistant buttons. The timer button is recorded but hidden, because it is never used. All 12 exposed buttons are confirmed transmitting from Home Assistant (H5). Results are in the [hardware test log](docs/hardware-test-log.md). For scenes, the Home Assistant package `homeassistant/desk_lamp.yaml` adds `light.desk_lamp`, a light with an assumed state built on those buttons. It has been checked in software but not yet on the lamp; see [Desk lamp light](docs/home-assistant-light.md). The capture analyzer, command generator and configuration pass `python3 -m unittest discover -s tests`.
 
 The active project is `/Users/sasha/Documents/lumos`. Its existing Git remote is `https://github.com/sasha351/lumos.git`. Both old project paths have been cleared after preserving the source files. The remote was preserved; the user subsequently authorized committing and pushing the migration to `main`.
 
@@ -14,6 +14,7 @@ The active project is `/Users/sasha/Documents/lumos`. Its existing Git remote is
 - [Implementation plan](docs/superpowers/plans/2026-11-09-lamp-controller.md)
 - [Subagent execution plan (Copilot)](docs/superpowers/plans/2026-11-09-copilot-subagent-plan.md) and [agent guardrails](.github/copilot-instructions.md)
 - [Hardware test log](docs/hardware-test-log.md)
+- [Desk lamp light in Home Assistant](docs/home-assistant-light.md) (for scenes)
 - [Capture observations and uncertain labels](docs/radio-captures.md)
 - [Original captures](captures/original/) — all 12 files, verified against Downloads with SHA-256
 - [Migration provenance and checksums](docs/migration.md)

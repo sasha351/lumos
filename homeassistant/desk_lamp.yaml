@@ -1,0 +1,213 @@
+# Desk lamp: a Home Assistant light built on the Lumos ESPHome buttons.
+# Install it as a Home Assistant package: see docs/home-assistant-light.md.
+#
+# The lamp sends no feedback, so this light's state is ASSUMED. It lives in two
+# helpers, input_boolean.desk_lamp_on and input_select.desk_lamp_mode. Changing
+# a helper by hand transmits nothing: do that to correct the light when it
+# disagrees with the lamp, for example after using the physical remote.
+#
+# Safety rules (see .github/copilot-instructions.md):
+# - Only script.desk_lamp_set transmits, and only light.desk_lamp calls it.
+#   There are no automations, triggers or startup actions here, so nothing
+#   transmits unless someone controls the light.
+# - Power is a toggle, so it is pressed only when the assumed on/off state
+#   differs from the requested one.
+# - Only exposed, verified buttons are pressed. Never the Timer.
+#
+# The firmware names its buttons "Lumos Lamp <label>", so Home Assistant gives
+# them the IDs button.lumos_lamp_<label>. If yours differ, change them here.
+
+input_boolean:
+  desk_lamp_on:
+    name: Desk lamp on (assumed)
+    icon: mdi:desk-lamp
+
+input_select:
+  desk_lamp_mode:
+    name: Desk lamp mode (assumed)
+    icon: mdi:palette
+    # No `initial:` on purpose, so both helpers keep their value across restarts.
+    options:
+      - Warm 100%
+      - Warm 50%
+      - Neutral 100%
+      - Neutral 50%
+      - Cool 100%
+      - Cool 50%
+      - Night mode
+
+script:
+  desk_lamp_set:
+    alias: "Desk lamp: set"
+    description: >-
+      Called by light.desk_lamp. Presses Lumos buttons to move the lamp from
+      its assumed state to the requested one, then records the new state.
+    icon: mdi:desk-lamp
+    # One run at a time, so presses never overlap on the radio.
+    mode: queued
+    max: 10
+    fields:
+      power:
+        name: Power
+        description: "on or off"
+        required: true
+        selector:
+          select:
+            options: ["on", "off"]
+      brightness_pct:
+        name: Brightness
+        description: Requested brightness in percent. Leave out to keep the current level.
+        selector:
+          number:
+            min: 1
+            max: 100
+            unit_of_measurement: "%"
+      kelvin:
+        name: Color temperature
+        description: Requested color temperature in kelvin. Leave out to keep the current one.
+        selector:
+          color_temp:
+            unit: kelvin
+            min: 3000
+            max: 5500
+    variables:
+      # Time between presses. One press is about 0.3 s on air (tx_repeat 8).
+      press_gap_ms: 1000
+      mode_buttons:
+        "Warm 100%": button.lumos_lamp_warm_100
+        "Warm 50%": button.lumos_lamp_warm_50
+        "Neutral 100%": button.lumos_lamp_neutral_100
+        "Neutral 50%": button.lumos_lamp_neutral_50
+        "Cool 100%": button.lumos_lamp_cool_100
+        "Cool 50%": button.lumos_lamp_cool_50
+        "Night mode": button.lumos_lamp_night_mode
+    sequence:
+      # Read the assumed state when this run starts, not when it is queued,
+      # so a run waiting behind another one sees that run's result.
+      - variables:
+          was_on: "{{ is_state('input_boolean.desk_lamp_on', 'on') }}"
+          # The mode to press, or '' to leave the mode alone. A value that is not
+          # requested keeps its current one. Brightness 1-25% is Night mode, 26-75%
+          # is the 50% preset, 76-100% the 100% preset. Below 3500 K is Warm
+          # (3000 K), below 4750 K Neutral (4000 K), and above that Cool (5500 K).
+          new_mode: >-
+            {%- set b = brightness_pct | default(none) -%}
+            {%- set k = kelvin | default(none) -%}
+            {%- if b not in [none, ''] or k not in [none, ''] -%}
+              {%- set m = states('input_select.desk_lamp_mode') -%}
+              {%- set color = m.split(' ')[0] if m.split(' ')[0] in ['Warm', 'Neutral', 'Cool'] else 'Warm' -%}
+              {%- set pct = 10 if m == 'Night mode' else (50 if m.endswith('50%') else 100) -%}
+              {%- if b not in [none, ''] -%}
+                {%- set pct = b | float -%}
+              {%- endif -%}
+              {%- if k not in [none, ''] -%}
+                {%- set color = 'Warm' if k | float < 3500 else ('Neutral' if k | float < 4750 else 'Cool') -%}
+              {%- endif -%}
+              {%- if pct <= 25 -%}Night mode
+              {%- elif pct <= 75 -%}{{ color }} 50%
+              {%- else -%}{{ color }} 100%
+              {%- endif -%}
+            {%- endif -%}
+      - if:
+          - condition: template
+            value_template: "{{ power == 'off' }}"
+        then:
+          - if:
+              - condition: template
+                value_template: "{{ was_on }}"
+            then:
+              - action: button.press
+                target:
+                  entity_id: button.lumos_lamp_power
+              - delay:
+                  milliseconds: "{{ press_gap_ms }}"
+          - action: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.desk_lamp_on
+        else:
+          - if:
+              - condition: template
+                value_template: "{{ not was_on }}"
+            then:
+              - action: button.press
+                target:
+                  entity_id: button.lumos_lamp_power
+              - action: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.desk_lamp_on
+              - delay:
+                  milliseconds: "{{ press_gap_ms }}"
+          # Mode presets set an absolute color and brightness, so pressing one
+          # again is harmless and corrects a mode that drifted.
+          - if:
+              - condition: template
+                value_template: "{{ new_mode != '' }}"
+            then:
+              - action: button.press
+                target:
+                  entity_id: "{{ mode_buttons[new_mode] }}"
+              - action: input_select.select_option
+                target:
+                  entity_id: input_select.desk_lamp_mode
+                data:
+                  option: "{{ new_mode }}"
+              - delay:
+                  milliseconds: "{{ press_gap_ms }}"
+
+template:
+  - light:
+      - name: Desk lamp
+        unique_id: lumos_desk_lamp
+        default_entity_id: light.desk_lamp
+        icon: mdi:desk-lamp
+        # Unavailable while the Lumos board is offline, so commands are not
+        # recorded as done when nothing was sent.
+        availability: >-
+          {{ states.button.lumos_lamp_power is not none
+             and not is_state('button.lumos_lamp_power', 'unavailable') }}
+        state: "{{ is_state('input_boolean.desk_lamp_on', 'on') }}"
+        # Night mode shows as 10%, the presets as 50% and 100% (of 255).
+        level: >-
+          {%- set m = states('input_select.desk_lamp_mode') -%}
+          {{ 26 if m == 'Night mode' else (128 if m.endswith('50%') else 255) }}
+        # Mireds: Cool 5500 K = 182, Neutral 4000 K = 250, Warm 3000 K = 333.
+        # Night mode shows as Warm.
+        temperature: >-
+          {%- set m = states('input_select.desk_lamp_mode') -%}
+          {{ 182 if m.startswith('Cool') else (250 if m.startswith('Neutral') else 333) }}
+        min_mireds: 182
+        max_mireds: 333
+        # The light's own action scripts run one at a time and drop a call that
+        # arrives while one is running. Starting desk_lamp_set without waiting
+        # hands every request to its queue instead, so none is lost.
+        turn_on:
+          - action: script.turn_on
+            target:
+              entity_id: script.desk_lamp_set
+            data:
+              variables:
+                power: "on"
+        turn_off:
+          - action: script.turn_on
+            target:
+              entity_id: script.desk_lamp_set
+            data:
+              variables:
+                power: "off"
+        set_level:
+          - action: script.turn_on
+            target:
+              entity_id: script.desk_lamp_set
+            data:
+              variables:
+                power: "on"
+                brightness_pct: "{{ brightness_pct }}"
+        set_temperature:
+          - action: script.turn_on
+            target:
+              entity_id: script.desk_lamp_set
+            data:
+              variables:
+                power: "on"
+                kelvin: "{{ color_temp_kelvin }}"
+                brightness_pct: "{{ brightness_pct | default(none) }}"
