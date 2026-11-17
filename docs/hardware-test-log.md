@@ -49,7 +49,19 @@ With no options it walks every exposed button in remote order: Night mode, Power
 
 Session files go to `captures/sessions/`. They hold only frames, step names and notes, with no Wi-Fi details or keys. Re-print a session's table with `python3 -m tools.press_log captures/sessions/<file>.log`.
 
-## Firmware settings implied by H1
+## ESP32 perfboard (November 17, 2026)
+
+The CC1101 moved to a 38-pin ESP32 on a 7 × 9 cm perfboard. Wiring is in [CC1101-ESP32-wiring.md](../CC1101-ESP32-wiring.md). Gates H1–H5 above were run on the ESP32-S3 build.
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Chip / flash | pass | `esptool flash-id`: `ESP32-D0WD-V3 (revision v3.1)`, 40 MHz crystal, flash manufacturer `5e`, device `4016`, 4 MB, no PSRAM. CP2102 USB bridge on `/dev/cu.usbserial-0001`. |
+| Firmware fits | pass | `esphome compile` with the Bluetooth proxy: RAM 55.9%, flash 67.4% of the 1.8 MB app slot. Flashed over USB, hash verified. |
+| Bluetooth proxy scan | pass | A test build that logged every advertisement heard 92 devices (4,218 advertisements) in 40 s, strongest −34 dBm. That build then hit task-watchdog resets, because logging every advertisement saturated the 115200-baud UART. The normal firmware has no such logging and ran with no resets or brownouts. |
+| CC1101 over SPI | pass, after a firmware pin swap | First runs read `0x0000` (only power wired), then `0x0F0F`, `0x1E1E`, `0xF1F1` and occasionally `0x0014`, always marked FAILED. Photos showed radio pin 3 (GDO0) soldered to ESP 5 and pin 4 (CSN) to ESP 4, the reverse of the plan, so CSN sat on the transmitter pin. The firmware was changed to match the board (`cs_pin: GPIO4`, transmitter `GPIO5`). After the swap, 22 of 23 resets read `0x0014` and none was marked failed; the one bad read (`0xFFFF`) came on the first reset straight after flashing. The radio enters RX and the receiver on GPIO22 logs 433 MHz noise. |
+| Wi-Fi, Home Assistant, transmit | not run | The home network was out of range. Power off the S3 first (both use the name `lumos-lamp`); Home Assistant will ask to reconfigure the device because the MAC changed. |
+
+## Firmware settings implied by H1 (ESP32-S3 build)
 
 - **PSRAM:** 8 MB embedded PSRAM is the ESP32-S3R8 die variant, which is octal. The firmware leaves PSRAM unconfigured because it does not need it; if it is ever enabled, use `psram: mode: octal`.
 - **Flash:** `flash_size: 16MB`.
@@ -58,7 +70,7 @@ Session files go to `captures/sessions/`. They hold only frames, step names and 
 
 ## Recovery
 
-To restore the original firmware, write the backup back to address 0 and check the SHA-256 above first:
+To restore the ESP32-S3's original firmware, write the backup back to address 0 and check the SHA-256 above first. The backup is a 16 MB image of the S3; never write it to the 4 MB ESP32:
 
 ```bash
 uvx esptool --port /dev/cu.usbmodem101 write-flash 0 lumos-factory-backup.bin

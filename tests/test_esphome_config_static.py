@@ -45,29 +45,28 @@ class EsphomeStaticSafetyTests(unittest.TestCase):
 
     def test_spi_pins_match_wiring_plan(self):
         # The jumpers are fixed to match the plan, not the firmware to match
-        # the jumpers (see "As built" in CC1101-ESP32-S3-wiring.md).
+        # the jumpers (see CC1101-ESP32-wiring.md).
         body = strip_comments(MAIN.read_text(encoding="utf-8"))
-        for key, gpio in [("clk_pin", 12), ("mosi_pin", 11), ("miso_pin", 13), ("cs_pin", 10)]:
+        for key, gpio in [("clk_pin", 18), ("mosi_pin", 23), ("miso_pin", 19), ("cs_pin", 4)]:
             with self.subTest(key=key):
                 self.assertRegex(body, rf"(?m)^\s+{key}: GPIO{gpio}$", msg=f"{key} should be GPIO{gpio}")
 
     def test_radio_data_gpio_numbers_present(self):
         body = strip_comments(MAIN.read_text(encoding="utf-8"))
-        for gpio, role in [(4, "GDO0 TX"), (5, "GDO2 RX")]:
+        for gpio, role in [(5, "GDO0 TX"), (22, "GDO2 RX")]:
             with self.subTest(role=role):
                 self.assertRegex(body, rf"\bGPIO{gpio}\b")
 
     def test_transmit_pin_is_open_drain(self):
         body = strip_comments(MAIN.read_text(encoding="utf-8"))
         block = body.split("remote_transmitter:", 1)[1].split("\nremote_receiver:", 1)[0]
-        self.assertIn("number: GPIO4", block)
+        self.assertIn("number: GPIO5", block)
         self.assertIn("open_drain: true", block)
         self.assertIn("eot_level: false", block)
 
     def test_serial_logs_do_not_reset_into_download_mode(self):
         body = strip_comments(MAIN.read_text(encoding="utf-8"))
         logger = body.split("\nlogger:", 1)[1].split("\napi:", 1)[0]
-        self.assertIn("hardware_uart: USB_SERIAL_JTAG", logger)
         self.assertIn("deassert_rts_dtr: true", logger)
 
     def test_radio_returns_to_rx_after_transmit(self):

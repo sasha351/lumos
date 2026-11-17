@@ -1,7 +1,8 @@
 """Print serial output from the board and reconnect whenever the port drops.
 
-The ESP32-S3's native USB port disappears for a moment on every reset, so
-`esphome logs` exits and misses the boot messages. This keeps retrying.
+On the old ESP32-S3 the native USB port disappeared for a moment on every reset,
+so `esphome logs` exited and missed the boot messages. This keeps retrying, and
+opens the port without pulsing DTR/RTS, so it does not reset the board.
 
 Needs pyserial, which ESPHome already installs. On macOS with ESPHome
 installed by `uv tool install`, run it with ESPHome's Python:
@@ -19,7 +20,7 @@ try:
 except ImportError:
     sys.exit("pyserial not found: run this with ESPHome's Python (see the docstring).")
 
-DEFAULT_PORT = "/dev/cu.usbmodem101"
+DEFAULT_PORT = "/dev/cu.usbserial-0001"  # ESP32 CP2102; the S3 was /dev/cu.usbmodem101
 
 
 def main() -> int:

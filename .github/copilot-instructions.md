@@ -1,6 +1,6 @@
 # Copilot instructions for Lumos
 
-Lumos controls a 433.92 MHz lamp from Home Assistant using an ESP32-S3 and a CC1101 radio running ESPHome. The work is driven by `docs/superpowers/plans/2026-11-09-copilot-subagent-plan.md`: do only the task you were assigned, and stop at HUMAN gates.
+Lumos controls a 433.92 MHz lamp from Home Assistant using a 38-pin ESP32 (previously an ESP32-S3) and a CC1101 radio running ESPHome. The work is driven by `docs/superpowers/plans/2026-11-09-copilot-subagent-plan.md`: do only the task you were assigned, and stop at HUMAN gates.
 
 ## Hard rules
 

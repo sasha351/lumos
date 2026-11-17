@@ -1,5 +1,6 @@
-# Lumos lamp controller: DORHEA ESP32-S3 N16R8 + AOICRIE CC1101 at 433.92 MHz.
-# GPIO numbers match the soldered wiring in CC1101-ESP32-S3-wiring.md.
+# Lumos lamp controller: 38-pin ESP32 (ESP32-D0WD-V3, 4 MB, CP2102) + AOICRIE
+# CC1101 at 433.92 MHz. GPIO numbers match the perfboard in CC1101-ESP32-wiring.md.
+# The previous ESP32-S3 build is in git history and CC1101-ESP32-S3-wiring.md.
 #
 # Safety rules (see .github/copilot-instructions.md):
 # - The radio transmits only when a Home Assistant button is pressed.
@@ -19,23 +20,17 @@ esphome:
   min_version: 2026.10.2
 
 esp32:
-  board: esp32-s3-devkitc-1
-  variant: esp32s3
-  flash_size: 16MB
+  board: esp32dev
+  variant: esp32
+  flash_size: 4MB             # esptool flash-id: 4MB, no PSRAM
   framework:
     type: esp-idf
-# PSRAM is deliberately not configured. The firmware does not need it, and a
-# wrong PSRAM mode can stop the board from booting. H1 found 8 MB of embedded
-# octal PSRAM (ESP32-S3R8), so if it is ever enabled use `psram: mode: octal`.
 
 logger:
-  # H1 found native USB-Serial/JTAG on /dev/cu.usbmodem*. This is the ESP32-S3
-  # default; it is set explicitly so boot logs are guaranteed on that port.
-  hardware_uart: USB_SERIAL_JTAG
-  # Host-side setting for `esphome logs` over USB. Without it the CLI opens the
-  # port with DTR/RTS asserted, which the S3's USB-Serial/JTAG treats as a
-  # reset into download mode (observed in H3: rst:0x15, boot:0x3, "waiting for
-  # download"), so the firmware never runs while logs are open.
+  # Logs go to UART0, which the CP2102 exposes as /dev/cu.usbserial-*.
+  # Host-side setting for `esphome logs`: leave DTR/RTS released so opening the
+  # port cannot pulse the CP2102 auto-reset into download mode (the S3 did
+  # exactly that in H3).
   deassert_rts_dtr: true
 
 api:
@@ -50,26 +45,29 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
 
-spi:
-  clk_pin: GPIO12
-  mosi_pin: GPIO11
-  miso_pin: GPIO13
+spi:                        # the ESP32's standard VSPI pins
+  clk_pin: GPIO18
+  mosi_pin: GPIO23
+  miso_pin: GPIO19
 
 cc1101:
   id: radio
-  cs_pin: GPIO10
+  # Matches the soldered perfboard: radio CSN is wired to GPIO4.
+  cs_pin: GPIO4
   frequency: 433.92MHz
   modulation_type: ASK/OOK
   # The component enters RX at boot; it never transmits on its own.
 
 remote_transmitter:
   id: tx
-  # GPIO4 -> CC1101 GDO0. In RX the CC1101 drives GDO0 as a serial data
-  # output, so a push-pull GPIO4 held low would fight it. Open-drain with the
+  # GPIO5 -> CC1101 GDO0. In RX the CC1101 drives GDO0 as a serial data
+  # output, so a push-pull GPIO5 held low would fight it. Open-drain with the
   # internal pull-up releases the line except while transmitting. This is the
   # pin handling ESPHome documents for ESP32 + CC1101 on a shared GDO0.
   pin:
-    number: GPIO4
+    # GPIO5 is a strapping pin (ESPHome warns); it only sets SDIO slave
+    # timing at reset, which this board never uses.
+    number: GPIO5
     mode:
       output: true
       open_drain: true
@@ -98,7 +96,7 @@ remote_transmitter:
 
 remote_receiver:
   id: rx
-  pin: GPIO5                 # CC1101 GDO2
+  pin: GPIO22                # CC1101 GDO2
   dump: [raw, rc_switch]
   tolerance: 25%
   filter: 100us
@@ -106,3 +104,11 @@ remote_receiver:
 
 packages:
   commands: !include lamp-commands.generated.yaml
+
+
+# Bluetooth proxy for the Govee BLE lamps. Uses the ESP32's own 2.4 GHz radio;
+# the CC1101 (433 MHz) is untouched. Default scan parameters on purpose.
+esp32_ble_tracker:
+
+bluetooth_proxy:
+  active: true

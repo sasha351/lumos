@@ -1,16 +1,19 @@
 # Lumos
 
-Control an existing 433.92 MHz lamp from Home Assistant with a DORHEA ESP32-S3 N16R8 and an AOICRIE CC1101 radio.
+Control an existing 433.92 MHz lamp from Home Assistant with an AOICRIE CC1101 radio on a 38-pin ESP32 (ESP32-D0WD-V3, 4 MB), soldered to a perfboard. The first build used a DORHEA ESP32-S3 N16R8. See the [ESP32 perfboard wiring](CC1101-ESP32-wiring.md).
 
 ## Status
 
-The ESPHome firmware runs on the board and is added to Home Assistant. The CC1101 answers over SPI (Chip ID `0x0014`), and frames received from the original remote decode cleanly. Pressing Power in Home Assistant toggles the lamp. Two pairs of jumpers were crossed and have been fixed; see the as-built table in the [wiring doc](CC1101-ESP32-S3-wiring.md). All 13 remote buttons, listed in [Remote buttons](docs/radio-captures.md#remote-buttons), are confirmed from the original remote with the guided session `scripts/record_presses.py`. The mode buttons are named for their color and brightness (Warm, Neutral or Cool, at 100% or 50%). Twelve are exposed as Home Assistant buttons. The timer button is recorded but hidden, because it is never used. All 12 exposed buttons are confirmed transmitting from Home Assistant (H5). Results are in the [hardware test log](docs/hardware-test-log.md). The capture analyzer, command generator and configuration pass `python3 -m unittest discover -s tests`.
+**ESP32 perfboard (November 17, 2026):** the firmware runs on the new board. The CC1101 answers (Chip ID `0x0014` on 22 of 23 resets), enters receive mode, and the Bluetooth proxy scans. Wi-Fi, Home Assistant and transmitting to the lamp are not tested yet, because the home network was out of range. See the [hardware test log](docs/hardware-test-log.md#esp32-perfboard-november-17-2026).
+
+**ESP32-S3 build (November 9, 2026):** the ESPHome firmware ran on the board and was added to Home Assistant. The CC1101 answers over SPI (Chip ID `0x0014`), and frames received from the original remote decode cleanly. Pressing Power in Home Assistant toggles the lamp. Two pairs of jumpers were crossed and have been fixed; see the as-built table in the [S3 wiring doc](CC1101-ESP32-S3-wiring.md). All 13 remote buttons, listed in [Remote buttons](docs/radio-captures.md#remote-buttons), are confirmed from the original remote with the guided session `scripts/record_presses.py`. The mode buttons are named for their color and brightness (Warm, Neutral or Cool, at 100% or 50%). Twelve are exposed as Home Assistant buttons. The timer button is recorded but hidden, because it is never used. All 12 exposed buttons are confirmed transmitting from Home Assistant (H5). Results are in the [hardware test log](docs/hardware-test-log.md). The capture analyzer, command generator and configuration pass `python3 -m unittest discover -s tests`.
 
 The active project is `/Users/sasha/Documents/lumos`. Its existing Git remote is `https://github.com/sasha351/lumos.git`. Both old project paths have been cleared after preserving the source files. The remote was preserved; the user subsequently authorized committing and pushing the migration to `main`.
 
 ## Start here
 
-- [Wiring and hardware](CC1101-ESP32-S3-wiring.md)
+- [ESP32 perfboard wiring](CC1101-ESP32-wiring.md) (current)
+- [ESP32-S3 wiring and hardware](CC1101-ESP32-S3-wiring.md) (previous build)
 - [Implementation plan](docs/superpowers/plans/2026-11-09-lamp-controller.md)
 - [Subagent execution plan (Copilot)](docs/superpowers/plans/2026-11-09-copilot-subagent-plan.md) and [agent guardrails](.github/copilot-instructions.md)
 - [Hardware test log](docs/hardware-test-log.md)
@@ -20,4 +23,4 @@ The active project is `/Users/sasha/Documents/lumos`. Its existing Git remote is
 
 The proposed implementation uses ESPHome with separate CC1101 transmit and receive pins. Next, isolate and measure a clean power frame, then identify the actual ESP chip and flash before configuring firmware. Start with Home Assistant buttons; lamp state and absolute brightness are not established. Mixed recordings must not be replayed wholesale.
 
-Supply Wi-Fi and Home Assistant credentials locally through ignored secrets files. ESPHome was not on the shell PATH in the prior session; Python 3 and `uv` were found. The previously observed `/dev/cu.usbmodem21101` must be re-enumerated before use. Firmware setup, compilation, flashing, and hardware tests belong to later plan phases.
+Supply Wi-Fi and Home Assistant credentials locally through ignored secrets files. ESPHome was not on the shell PATH in the prior session; Python 3 and `uv` were found. The ESP32 enumerates as `/dev/cu.usbserial-0001` (CP2102); re-check with `ls /dev/cu.usb*` before each session. Firmware setup, compilation, flashing, and hardware tests belong to later plan phases.

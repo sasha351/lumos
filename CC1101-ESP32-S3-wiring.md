@@ -1,5 +1,7 @@
 # Sub-GHz lamp controller for Home Assistant
 
+> **Previous build.** The radio now runs on a 38-pin ESP32 perfboard: see [CC1101-ESP32-wiring.md](CC1101-ESP32-wiring.md). This file records the ESP32-S3 build.
+
 Exported November 9, 2026. Wiring and source review completed during the November 2, 2026 planning session.
 
 Recovered from the sibling project folder on November 9, 2026 and updated for `/Users/sasha/Documents/lumos`. The [unaltered recovered export](docs/archive/CC1101-ESP32-S3-wiring.md) is preserved for provenance.
